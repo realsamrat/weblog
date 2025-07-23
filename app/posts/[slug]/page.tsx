@@ -1,7 +1,7 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
 import { getPostBySlug as getSanityPost, getPublishedPosts } from "@/lib/sanity"
-import { getPostBySlug as getPrismaPost, getAllPosts, type Post } from "@/lib/posts"
+import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
 import { portableTextToHtml } from "@/lib/sanity"
@@ -134,9 +134,27 @@ export default async function BlogPost({ params }: PageProps) {
                 </p>
               </div>
 
-              {/* Keywords */}
+              {/* Auto-generated Keywords */}
+              {useSanity && post.keywords?.length > 0 && (
+                <div className="mb-8">
+                  <h4 className="font-serif text-sm font-semibold mb-2 text-gray-800">Auto-generated Keywords</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {post.keywords.map((keyword: string, index: number) => (
+                      <span
+                        key={`keyword-${index}`}
+                        className="text-xs px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Manual Tags */}
               {((useSanity && post.tags?.length > 0) || (!useSanity && post.tags?.length > 0)) && (
                 <div className="mb-8">
+                  <h4 className="font-serif text-sm font-semibold mb-2 text-gray-800">Tags</h4>
                   <div className="flex flex-wrap gap-2">
                     {useSanity ? (
                       post.tags.map((tag: any) => (

@@ -31,6 +31,26 @@ export default defineConfig({
       }
       return prev
     },
+    publishAction: (prev: any, context: any) => {
+      if (context.schemaType === 'post') {
+        return (props: any) => {
+          const originalResult = prev(props)
+          return {
+            ...originalResult,
+            onHandle: async () => {
+              const result = await originalResult.onHandle()
+              const { draft, published } = props
+              const doc = draft || published
+              if (doc?._id) {
+                await updatePostKeywords(doc._id)
+              }
+              return result
+            }
+          }
+        }
+      }
+      return prev
+    }
   },
 
   schema: {
