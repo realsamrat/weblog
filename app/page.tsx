@@ -60,7 +60,7 @@ export default async function Home() {
             <div className="space-y-0">
               {otherPosts.map((post: any) => (
                 <BlogPostCard
-                  key={post.slug}
+                  key={post.slug.current || post.slug}
                   title={post.title}
                   excerpt={post.excerpt || ""}
                   date={useSanity
