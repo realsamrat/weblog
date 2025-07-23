@@ -3,16 +3,33 @@ import BlogPostCard from "@/components/blog-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
 import PopularKeywords from "@/components/popular-keywords"
 import PopularPostsList from "@/components/popular-posts-list"
+import { getPublishedPosts, getFeaturedPosts } from "@/lib/payload-utils"
 import { getAllPosts, getFeaturedPost, getPopularPosts, getPopularKeywords } from "@/lib/posts"
 import { Status } from "@prisma/client"
 
 export default async function Home() {
-  const allPublishedPosts = await getAllPosts({ status: Status.PUBLISHED })
-  const featuredPostData = await getFeaturedPost()
-  const otherPosts = featuredPostData
-    ? allPublishedPosts.filter((post) => post.slug !== featuredPostData.slug)
+  // Try Payload first, fallback to Prisma
+  let allPublishedPosts = await getPublishedPosts(20)
+  let featuredPost = null
+  let usePayload = true
+  
+  if (allPublishedPosts.length === 0) {
+    // Fallback to Prisma
+    usePayload = false
+    const prismaData = await getAllPosts({ status: Status.PUBLISHED })
+    allPublishedPosts = prismaData
+    const featuredData = await getFeaturedPost()
+    featuredPost = featuredData
+  } else {
+    const featuredPosts = await getFeaturedPosts()
+    featuredPost = featuredPosts[0]
+  }
+  
+  const otherPosts = featuredPost
+    ? allPublishedPosts.filter((post: any) => post.slug !== featuredPost.slug)
     : allPublishedPosts
 
+  // For now, using existing data for popular posts and keywords
   const popularPostsData = await getPopularPosts(7)
   const popularKeywordsData = await getPopularKeywords(7)
 
@@ -23,26 +40,38 @@ export default async function Home() {
         <div className="flex flex-col md:flex-row gap-12">
           {/* Main content area */}
           <div className="w-full md:w-2/3">
-            {featuredPostData && (
+            {featuredPost && (
               <FeaturedPostCard
-                title={featuredPostData.title}
-                excerpt={featuredPostData.excerpt || ""}
-                date={featuredPostData.publishedAt?.toISOString().split('T')[0] || ""}
-                slug={featuredPostData.slug}
-                category={featuredPostData.category?.name || "General"}
+                title={featuredPost.title}
+                excerpt={featuredPost.excerpt || ""}
+                date={usePayload 
+                  ? new Date(featuredPost.publishedAt).toISOString().split('T')[0]
+                  : featuredPost.publishedAt?.toISOString().split('T')[0] || ""
+                }
+                slug={featuredPost.slug}
+                category={usePayload 
+                  ? featuredPost.categories?.[0]?.name || "General"
+                  : featuredPost.category?.name || "General"
+                }
               />
             )}
 
             <h2 className="font-serif text-2xl font-semibold mb-6 mt-10 pt-8 border-t border-gray-300">Recent Posts</h2>
             <div className="space-y-0">
-              {otherPosts.map((post) => (
+              {otherPosts.map((post: any) => (
                 <BlogPostCard
                   key={post.slug}
                   title={post.title}
                   excerpt={post.excerpt || ""}
-                  date={post.publishedAt?.toISOString().split('T')[0] || ""}
+                  date={usePayload
+                    ? new Date(post.publishedAt).toISOString().split('T')[0]
+                    : post.publishedAt?.toISOString().split('T')[0] || ""
+                  }
                   slug={post.slug}
-                  category={post.category?.name || "General"}
+                  category={usePayload
+                    ? post.categories?.[0]?.name || "General"
+                    : post.category?.name || "General"
+                  }
                 />
               ))}
             </div>
