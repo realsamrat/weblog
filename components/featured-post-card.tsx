@@ -1,4 +1,6 @@
 import Link from "next/link"
+import Image from "next/image"
+import { urlFor } from "@/lib/sanity-image"
 
 interface FeaturedPostCardProps {
   title: string
@@ -6,6 +8,12 @@ interface FeaturedPostCardProps {
   date: string
   slug: string
   category: string
+  image?: {
+    asset: {
+      _ref: string
+      url: string
+    }
+  }
 }
 
 const categoryColorMap: { [key: string]: { bg: string; text: string } } = {
@@ -15,7 +23,7 @@ const categoryColorMap: { [key: string]: { bg: string; text: string } } = {
   Default: { bg: "bg-slate-100", text: "text-slate-800" },
 }
 
-export default function FeaturedPostCard({ title, excerpt, date, slug, category }: FeaturedPostCardProps) {
+export default function FeaturedPostCard({ title, excerpt, date, slug, category, image }: FeaturedPostCardProps) {
   const colors = categoryColorMap[category] || categoryColorMap.Default
 
   return (
@@ -25,6 +33,19 @@ export default function FeaturedPostCard({ title, excerpt, date, slug, category 
         <span className={`text-xs px-2 py-1 rounded ${colors.bg} ${colors.text}`}>{category}</span>
         <time className="text-xs text-gray-500">{date}</time>
       </div>
+      
+      {image && (
+        <div className="mb-4 rounded-lg overflow-hidden">
+          <Image
+            src={urlFor(image).width(800).height(400).url()}
+            alt={title}
+            width={800}
+            height={400}
+            className="w-full h-48 object-cover"
+          />
+        </div>
+      )}
+      
       <h2 className="font-serif text-3xl font-bold mb-4 leading-tight">
         <Link href={`/posts/${slug}`} className="hover:text-gray-600 transition-colors">
           {title}

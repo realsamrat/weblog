@@ -3,16 +3,18 @@ import BlogPostCard from "@/components/blog-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
 import PopularKeywords from "@/components/popular-keywords"
 import PopularPostsList from "@/components/popular-posts-list"
-import { getAllPosts, getFeaturedPost, getPopularPosts, getPopularKeywords } from "@/lib/posts"
-import { Status } from "@prisma/client"
+import { getPublishedPosts, getFeaturedPosts, getPopularPosts, getPopularKeywords } from "@/lib/sanity-utils"
 
 export default async function Home() {
-  const allPublishedPosts = await getAllPosts({ status: Status.PUBLISHED })
-  const featuredPostData = await getFeaturedPost()
-  const otherPosts = featuredPostData
-    ? allPublishedPosts.filter((post) => post.slug !== featuredPostData.slug)
+  const allPublishedPosts = await getPublishedPosts(20)
+  const featuredPosts = await getFeaturedPosts(1)
+  const featuredPost = featuredPosts[0] || null
+  
+  const otherPosts = featuredPost
+    ? allPublishedPosts.filter((post) => post.slug.current !== featuredPost.slug.current)
     : allPublishedPosts
 
+  // For now, using existing data for popular posts and keywords
   const popularPostsData = await getPopularPosts(7)
   const popularKeywordsData = await getPopularKeywords(7)
 
@@ -23,13 +25,14 @@ export default async function Home() {
         <div className="flex flex-col md:flex-row gap-12">
           {/* Main content area */}
           <div className="w-full md:w-2/3">
-            {featuredPostData && (
+            {featuredPost && (
               <FeaturedPostCard
-                title={featuredPostData.title}
-                excerpt={featuredPostData.excerpt || ""}
-                date={featuredPostData.publishedAt?.toISOString().split('T')[0] || ""}
-                slug={featuredPostData.slug}
-                category={featuredPostData.category?.name || "General"}
+                title={featuredPost.title}
+                excerpt={featuredPost.excerpt || ""}
+                date={featuredPost.publishedAt ? new Date(featuredPost.publishedAt).toISOString().split('T')[0] : ""}
+                slug={featuredPost.slug.current}
+                category={featuredPost.category?.name || "General"}
+                image={featuredPost.image}
               />
             )}
 
@@ -37,11 +40,11 @@ export default async function Home() {
             <div className="space-y-0">
               {otherPosts.map((post) => (
                 <BlogPostCard
-                  key={post.slug}
+                  key={post.slug.current}
                   title={post.title}
                   excerpt={post.excerpt || ""}
-                  date={post.publishedAt?.toISOString().split('T')[0] || ""}
-                  slug={post.slug}
+                  date={post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : ""}
+                  slug={post.slug.current}
                   category={post.category?.name || "General"}
                 />
               ))}
