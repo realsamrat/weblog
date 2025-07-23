@@ -21,20 +21,20 @@ async function testConnection() {
     console.log('✅ Database connection successful!')
     console.log('Current time from database:', result.rows[0].now)
     
-    // Check if Payload tables exist
+    // Check if blog tables exist
     const tablesResult = await pool.query(`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = 'public' 
-      AND table_name LIKE 'payload_%'
+      AND table_name IN ('posts', 'categories', 'tags', 'authors', 'post_tags')
       ORDER BY table_name
     `)
     
-    console.log('\nPayload tables found:', tablesResult.rows.length)
+    console.log('\nBlog tables found:', tablesResult.rows.length)
     if (tablesResult.rows.length > 0) {
       console.log('Tables:', tablesResult.rows.map(r => r.table_name).join(', '))
     } else {
-      console.log('No Payload tables found. Payload needs to be initialized.')
+      console.log('No blog tables found. Database needs to be initialized.')
     }
     
   } catch (error) {

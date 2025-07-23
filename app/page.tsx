@@ -3,30 +3,15 @@ import BlogPostCard from "@/components/blog-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
 import PopularKeywords from "@/components/popular-keywords"
 import PopularPostsList from "@/components/popular-posts-list"
-import { getPublishedPosts, getFeaturedPosts } from "@/lib/payload-utils"
-import { getAllPosts, getFeaturedPost, getPopularPosts, getPopularKeywords } from "@/lib/posts"
-import { Status } from "@prisma/client"
+import { getPublishedPosts, getFeaturedPosts, getPopularPosts, getPopularKeywords } from "@/lib/sanity-utils"
 
 export default async function Home() {
-  // Try Payload first, fallback to Prisma
-  let allPublishedPosts = await getPublishedPosts(20)
-  let featuredPost = null
-  let usePayload = true
-  
-  if (allPublishedPosts.length === 0) {
-    // Fallback to Prisma
-    usePayload = false
-    const prismaData = await getAllPosts({ status: Status.PUBLISHED })
-    allPublishedPosts = prismaData
-    const featuredData = await getFeaturedPost()
-    featuredPost = featuredData
-  } else {
-    const featuredPosts = await getFeaturedPosts()
-    featuredPost = featuredPosts[0]
-  }
+  const allPublishedPosts = await getPublishedPosts(20)
+  const featuredPosts = await getFeaturedPosts(1)
+  const featuredPost = featuredPosts[0] || null
   
   const otherPosts = featuredPost
-    ? allPublishedPosts.filter((post: any) => post.slug !== featuredPost.slug)
+    ? allPublishedPosts.filter((post) => post.slug.current !== featuredPost.slug.current)
     : allPublishedPosts
 
   // For now, using existing data for popular posts and keywords
@@ -44,34 +29,23 @@ export default async function Home() {
               <FeaturedPostCard
                 title={featuredPost.title}
                 excerpt={featuredPost.excerpt || ""}
-                date={usePayload 
-                  ? new Date(featuredPost.publishedAt).toISOString().split('T')[0]
-                  : featuredPost.publishedAt?.toISOString().split('T')[0] || ""
-                }
-                slug={featuredPost.slug}
-                category={usePayload 
-                  ? featuredPost.categories?.[0]?.name || "General"
-                  : featuredPost.category?.name || "General"
-                }
+                date={featuredPost.publishedAt ? new Date(featuredPost.publishedAt).toISOString().split('T')[0] : ""}
+                slug={featuredPost.slug.current}
+                category={featuredPost.category?.name || "General"}
+                image={featuredPost.image}
               />
             )}
 
             <h2 className="font-serif text-2xl font-semibold mb-6 mt-10 pt-8 border-t border-gray-300">Recent Posts</h2>
             <div className="space-y-0">
-              {otherPosts.map((post: any) => (
+              {otherPosts.map((post) => (
                 <BlogPostCard
-                  key={post.slug}
+                  key={post.slug.current}
                   title={post.title}
                   excerpt={post.excerpt || ""}
-                  date={usePayload
-                    ? new Date(post.publishedAt).toISOString().split('T')[0]
-                    : post.publishedAt?.toISOString().split('T')[0] || ""
-                  }
-                  slug={post.slug}
-                  category={usePayload
-                    ? post.categories?.[0]?.name || "General"
-                    : post.category?.name || "General"
-                  }
+                  date={post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : ""}
+                  slug={post.slug.current}
+                  category={post.category?.name || "General"}
                 />
               ))}
             </div>
