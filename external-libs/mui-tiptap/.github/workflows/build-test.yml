@@ -1,0 +1,135 @@
+name: build-test
+
+# Run this for pushes to the main branch and for pull requests, and allow this
+# to be called from other workflows
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_call:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+        # Test across different versions of Tiptap to ensure compatibility: the
+        # version used in our lockfile, an older version we support, and the
+        # latest v2 version.
+        tiptap-version: [null, 2.0.4, "^2.10.0"]
+        include:
+          - tiptap-version: 2.0.4
+            # Specify the version of y-prosemirror to use to ensure proper peer
+            # dependency compatibility and resolution.
+            y-prosemirror-version: 1.0.20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - run: pnpm install
+
+      - name: Dependencies audit
+        run: pnpm audit --audit-level=high
+
+      - if: ${{ matrix.tiptap-version != null }}
+        name: Override tiptap version to ${{ matrix.tiptap-version }}
+        # So that we can update all tiptap packages at once, we use
+        # `pnpm update`, which allows wildcard syntax and version specifier
+        # (unlike `pnpm install`). We have to separately install the indirect
+        # dependencies of @tiptap/react with the desired version (the floating
+        # and bubble menu packages), since `update` doesn't apply to them.
+        run: |
+          pnpm update -D "@tiptap/*@${{ matrix.tiptap-version }}"
+          pnpm add -D "@tiptap/extension-floating-menu@${{ matrix.tiptap-version }}" "@tiptap/extension-bubble-menu@${{ matrix.tiptap-version }}"
+          pnpm dedupe
+
+      - if: ${{ matrix.y-prosemirror-version }}
+        name: Override y-prosemirror version to ${{ matrix.y-prosemirror-version }}
+        run: pnpm add -D "y-prosemirror@${{ matrix.y-prosemirror-version }}"
+
+      - name: Check for duplicate dependencies
+        run: pnpm dedupe --check
+
+      - if: ${{ matrix.tiptap-version == '2.0.4' }}
+        name: Resolve known inconsequential TS differences in Tiptap 2.0.4
+        # 1) Delete the `@ts-expect-error` comments where needed, as older
+        # versions of Tiptap didn't have the same types that required this
+        # override.
+        # 2) Add `@ts-expect-error` to TableImproved.ts where the typing in
+        # older versions was incorrect (as Tiptap itself did here
+        # https://github.com/ueberdosis/tiptap/blob/b0198eb14b98db5ca691bd9bfe698ffaddbc4ded/packages/extension-table/src/table.ts#L253,
+        # and we did prior to updating to newer Tiptap).
+        # 3) Restore an older version of the demo SuggestionList, since it
+        # relied on local typing overrides awaiting fixes published in Tiptap
+        # 2.5.0. This ensures `type:check` passes, though isn't part of the
+        # build anyway.
+        run: |
+          sed -i '/@ts-expect-error/d' src/extensions/HeadingWithAnchor.ts src/extensions/ResizableImage.ts
+
+          sed -i '/View: this.options.View/i\
+                        // @ts-expect-error incorrect type\
+          ' src/extensions/TableImproved.ts
+
+          git fetch origin tag v1.16.0 --no-tags
+          git restore --source v1.16.0 src/demo/SuggestionList.tsx
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Install dependencies in example project
+        # In order to lint both our main project and the example sub-project, we
+        # need to install the dependencies for the example project too.
+        run: pnpm run example:install
+
+      - name: Type check
+        # Though this largely happens as part of `pnpm run build`, there are
+        # some files that are not part of the publishable build but which we'd
+        # also like to type-check.
+        run: pnpm run type:check
+
+      - name: Format check
+        run: pnpm run format:check
+
+      - name: Lint check
+        run: pnpm run lint:check
+
+      - name: Spell check
+        run: pnpm run spell:check
+        # We run the spell check so we can see the output in CI if/when we like,
+        # but we won't enforce it, since there are too many technical/product
+        # words used that are outside the standard dictionary.
+        continue-on-error: true
+
+      - name: Validate markdown links
+        # Since most of our documentation is in README.md, notably with lots of
+        # internal anchor links, validate that they're formed properly. As the
+        # README and documentation is updated, we want to ensure that links
+        # remain correct. (This also checks external links, though that's a
+        # secondary concern.)
+        run: pnpm run md-link:check
+
+      - name: Test
+        # Run the tests and print out the coverage information. In the future,
+        # we could integrate with Codecov or something.
+        run: pnpm run test:coverage
+
+      - name: Validate the build's packaging CJS and ESM compatibility
+        # For now, we ignore the named-exports rule, as this gets triggered for
+        # the `node16 (from ESM)` context, and appears hard to resolve while
+        # still avoiding these issues:
+        # - https://github.com/sjdemartini/mui-tiptap/issues/256
+        # - https://github.com/sjdemartini/mui-tiptap/issues/264
+        # Ideally we can fix this in the future without breaking Node and NextJS
+        # contexts.
+        run: npx @arethetypeswrong/cli@0.16.2 --pack --ignore-rules named-exports
