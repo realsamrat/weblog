@@ -197,11 +197,13 @@ export default defineType({
     }),
     defineField({
       name: 'keywords',
-      title: 'Keywords',
+      title: 'Keywords (Auto-generated)',
       type: 'array',
       of: [{ type: 'string' }],
-      description: 'Auto-generated keywords based on content',
-      readOnly: true,
+      description: 'Auto-generated keywords based on content. Use the "Generate Keywords" action to update.',
+      validation: (Rule) => Rule.custom((value, context) => {
+        return true
+      }),
     }),
   ],
   preview: {
