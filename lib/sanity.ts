@@ -61,6 +61,24 @@ export function portableTextToHtml(blocks: PortableTextBlock[]): string {
       }
     } else if (block._type === 'code') {
       return `<pre><code>${block.code || ''}</code></pre>`
+    } else if (block._type === 'image') {
+      const imageBlock = block as any
+      if (imageBlock.asset) {
+        const imageUrl = urlFor(imageBlock.asset).url()
+        const alt = imageBlock.alt || ''
+        const caption = imageBlock.caption || ''
+        
+        let html = `<img src="${imageUrl}" alt="${alt}" style="max-width: 100%; height: auto; display: block; margin: 1rem auto;" />`
+        
+        if (caption) {
+          html = `<figure style="margin: 1rem 0; text-align: center;">
+            ${html}
+            <figcaption style="margin-top: 0.5rem; font-style: italic; color: #666; font-size: 0.9em;">${caption}</figcaption>
+          </figure>`
+        }
+        
+        return html
+      }
     }
     
     return ''
