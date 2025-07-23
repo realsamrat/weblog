@@ -2,7 +2,6 @@ import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './schemas'
-import { updatePostKeywords } from './lib/sanity'
 
 export default defineConfig({
   name: 'default',
@@ -23,7 +22,20 @@ export default defineConfig({
             const { draft, published } = props
             const doc = draft || published
             if (doc?._id) {
-              await updatePostKeywords(doc._id)
+              try {
+                const response = await fetch('/api/generate-keywords', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ postId: doc._id })
+                })
+                if (!response.ok) {
+                  throw new Error('Failed to generate keywords')
+                }
+                window.location.reload()
+              } catch (error) {
+                console.error('Error generating keywords:', error)
+                alert('Failed to generate keywords. Please try again.')
+              }
             }
           }
         })
@@ -42,7 +54,15 @@ export default defineConfig({
               const { draft, published } = props
               const doc = draft || published
               if (doc?._id) {
-                await updatePostKeywords(doc._id)
+                try {
+                  await fetch('/api/generate-keywords', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ postId: doc._id })
+                  })
+                } catch (error) {
+                  console.error('Error auto-generating keywords:', error)
+                }
               }
               return result
             }

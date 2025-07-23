@@ -333,19 +333,3 @@ export function extractKeywordsFromContent(content: any[]): string[] {
   
   return keywords
 }
-
-export async function updatePostKeywords(postId: string) {
-  try {
-    const post = await client.fetch(
-      `*[_type == "post" && _id == $postId][0] { content }`,
-      { postId }
-    )
-    
-    if (post && post.content) {
-      const keywords = extractKeywordsFromContent(post.content)
-      await client.patch(postId).set({ keywords }).commit()
-    }
-  } catch (error) {
-    console.error('Error updating keywords:', error)
-  }
-}
