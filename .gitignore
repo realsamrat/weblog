@@ -31,3 +31,7 @@ next-env.d.ts
 
 # external library with git repo
 external-libs/mui-tiptap/.git/
+
+# IDE and tool directories
+.claude/
+.cursor/
