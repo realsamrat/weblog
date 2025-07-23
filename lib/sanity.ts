@@ -8,6 +8,8 @@ interface PortableTextBlock {
     marks?: string[]
   }>
   code?: string
+  language?: string
+  filename?: string
 }
 
 export const client = createClient({
@@ -54,6 +56,12 @@ export function portableTextToHtml(blocks: PortableTextBlock[]): string {
           return `<h2>${children}</h2>`
         case 'h3':
           return `<h3>${children}</h3>`
+        case 'h4':
+          return `<h4>${children}</h4>`
+        case 'h5':
+          return `<h5>${children}</h5>`
+        case 'h6':
+          return `<h6>${children}</h6>`
         case 'blockquote':
           return `<blockquote>${children}</blockquote>`
         default:
@@ -79,6 +87,22 @@ export function portableTextToHtml(blocks: PortableTextBlock[]): string {
         
         return html
       }
+    } else if (block._type === 'codeBlock') {
+      const codeBlock = block as any
+      const language = codeBlock.language || 'plaintext'
+      const code = codeBlock.code || ''
+      const filename = codeBlock.filename || ''
+      
+      let html = `<pre><code class="language-${language}">${code}</code></pre>`
+      
+      if (filename) {
+        html = `<div class="code-block-container">
+          <div class="code-block-header">${filename}</div>
+          ${html}
+        </div>`
+      }
+      
+      return html
     }
     
     return ''
@@ -275,5 +299,46 @@ export async function getAllCategories() {
   } catch (error) {
     console.error('Error fetching categories:', error)
     return []
+  }
+}
+
+export function extractKeywordsFromContent(content: any[]): string[] {
+  if (!content || !Array.isArray(content)) {
+    return []
+  }
+  
+  const text = getPlainTextFromPortableText(content)
+  const words = text.toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 3)
+  
+  const wordCount: Record<string, number> = {}
+  words.forEach(word => {
+    wordCount[word] = (wordCount[word] || 0) + 1
+  })
+  
+  const keywords = Object.entries(wordCount)
+    .filter(([word, count]) => count > 1)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 10)
+    .map(([word]) => word)
+  
+  return keywords
+}
+
+export async function updatePostKeywords(postId: string) {
+  try {
+    const post = await client.fetch(
+      `*[_type == "post" && _id == $postId][0] { content }`,
+      { postId }
+    )
+    
+    if (post && post.content) {
+      const keywords = extractKeywordsFromContent(post.content)
+      await client.patch(postId).set({ keywords }).commit()
+    }
+  } catch (error) {
+    console.error('Error updating keywords:', error)
   }
 }
