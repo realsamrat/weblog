@@ -1,9 +1,11 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
-import { getPostBySlug, getAllPosts, type Post } from "@/lib/posts"
+import { getPostBySlug as getSanityPost, getPublishedPosts } from "@/lib/sanity"
+import { getPostBySlug as getPrismaPost, getAllPosts, type Post } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
-
+import { portableTextToHtml } from "@/lib/sanity"
+// Remove lexicalToHTML import as it's not available in this version
 
 interface PageProps {
   params: Promise<{
@@ -14,36 +16,44 @@ interface PageProps {
 export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params
   
-  // Fetch both post and all posts in parallel to improve performance
-  const [post, allPosts] = await Promise.all([
-    getPostBySlug(slug),
-    getAllPosts({ 
+  // Try Sanity first, fallback to Prisma
+  let post = await getSanityPost(slug)
+  let useSanity = true
+  let allPosts: any[] = []
+  
+  if (!post) {
+    // Fallback to Prisma
+    useSanity = false
+    const prismaPost = await getPrismaPost(slug)
+    if (!prismaPost || prismaPost.status === Status.DRAFT) {
+      notFound()
+    }
+    post = prismaPost
+    allPosts = await getAllPosts({ 
       status: Status.PUBLISHED,
-      includeRelations: false // Only get basic data for the list
+      includeRelations: false
     })
-  ]) as [Post | null, Post[]]
-
-  // Type guard to ensure we have the right types
-  if (!post || post.status === Status.DRAFT) {
-    notFound()
+  } else {
+    allPosts = await getPublishedPosts(100)
   }
 
-  // Find previous post efficiently
-  const currentPostIndex = allPosts.findIndex((p: Post) => p.slug === slug)
+  // Find previous post
+  const currentPostIndex = allPosts.findIndex((p: any) => (p.slug?.current || p.slug) === slug)
   const previousPost = currentPostIndex > 0 ? allPosts[currentPostIndex - 1] : null
 
-  // Handle content - render HTML directly or convert legacy markdown
-  let processedContent: string
+  // Process content based on source
+  let contentHTML = ''
   
-  if (isHtmlContent(post.content)) {
-    // Content is already HTML, sanitize and use directly
-    processedContent = sanitizeHtml(post.content)
-  } else {
-    // Legacy markdown content, convert to HTML
-    processedContent = await legacyMarkdownToHtml(post.content)
+  if (useSanity && Array.isArray(post.content)) {
+    contentHTML = portableTextToHtml(post.content)
+  } else if (post.content) {
+    // Prisma content (HTML or Markdown)
+    if (isHtmlContent(post.content)) {
+      contentHTML = sanitizeHtml(post.content)
+    } else {
+      contentHTML = await legacyMarkdownToHtml(post.content)
+    }
   }
-
-
 
   return (
     <div className="min-h-screen">
@@ -54,9 +64,14 @@ export default async function BlogPost({ params }: PageProps) {
           <article className="flex-1 max-w-xl">
             <header className="mb-8">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-xs px-2 py-1 bg-teal-100 rounded text-teal-800">{post.category?.name || 'General'}</span>
+                <span className="text-xs px-2 py-1 bg-teal-100 rounded text-teal-800">
+                  {useSanity 
+                    ? post.categories?.[0]?.name || 'General'
+                    : post.category?.name || 'General'
+                  }
+                </span>
                 <time className="text-xs text-gray-500">
-                  {post.publishedAt?.toLocaleDateString('en-US', {
+                  {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric'
@@ -85,14 +100,8 @@ export default async function BlogPost({ params }: PageProps) {
                 [&_ol]:ml-4 [&_ol]:list-decimal [&_ol]:space-y-1
                 [&_li]:leading-relaxed [&_li]:text-black
                 [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-800
-                [&_img]:rounded-md [&_img]:max-w-full [&_img]:h-auto [&_img]:my-6
-                [&_[data-type='INFO']]:bg-blue-50 [&_[data-type='INFO']]:border-blue-200 [&_[data-type='INFO']]:border-l-4 [&_[data-type='INFO']]:p-4 [&_[data-type='INFO']]:my-6 [&_[data-type='INFO']]:rounded-r-md [&_[data-type='INFO']]:text-blue-900 [&_[data-type='INFO']]:text-sm [&_[data-type='INFO']]:leading-relaxed
-                [&_[data-type='TIP']]:bg-yellow-50 [&_[data-type='TIP']]:border-yellow-200 [&_[data-type='TIP']]:border-l-4 [&_[data-type='TIP']]:p-4 [&_[data-type='TIP']]:my-6 [&_[data-type='TIP']]:rounded-r-md [&_[data-type='TIP']]:text-yellow-900 [&_[data-type='TIP']]:text-sm [&_[data-type='TIP']]:leading-relaxed
-                [&_[data-type='WARNING']]:bg-red-50 [&_[data-type='WARNING']]:border-red-200 [&_[data-type='WARNING']]:border-l-4 [&_[data-type='WARNING']]:p-4 [&_[data-type='WARNING']]:my-6 [&_[data-type='WARNING']]:rounded-r-md [&_[data-type='WARNING']]:text-red-900 [&_[data-type='WARNING']]:text-sm [&_[data-type='WARNING']]:leading-relaxed
-                [&_[data-type='SUCCESS']]:bg-green-50 [&_[data-type='SUCCESS']]:border-green-200 [&_[data-type='SUCCESS']]:border-l-4 [&_[data-type='SUCCESS']]:p-4 [&_[data-type='SUCCESS']]:my-6 [&_[data-type='SUCCESS']]:rounded-r-md [&_[data-type='SUCCESS']]:text-green-900 [&_[data-type='SUCCESS']]:text-sm [&_[data-type='SUCCESS']]:leading-relaxed
-                [&_[data-type='code-preview']]:my-6 [&_[data-type='code-preview']]:border-2 [&_[data-type='code-preview']]:border-gray-200 [&_[data-type='code-preview']]:rounded-md [&_[data-type='code-preview']]:overflow-hidden [&_[data-type='code-preview']]:bg-white
-                [&_[data-type='js-embed']]:my-6 [&_[data-type='js-embed']]:border-2 [&_[data-type='js-embed']]:border-gray-200 [&_[data-type='js-embed']]:rounded-md [&_[data-type='js-embed']]:overflow-hidden [&_[data-type='js-embed']]:bg-white"
-              dangerouslySetInnerHTML={{ __html: processedContent }}
+                [&_img]:rounded-md [&_img]:max-w-full [&_img]:h-auto [&_img]:my-6"
+              dangerouslySetInnerHTML={{ __html: contentHTML }}
             />
 
             <div className="mt-12 pt-8 border-t border-gray-200">
@@ -111,8 +120,12 @@ export default async function BlogPost({ params }: PageProps) {
               {/* Post metadata */}
               <div className="mb-8">
                 <p className="text-sm text-gray-600 mb-2">
-                  This is <strong>{post.title}</strong> by {post.author.name}, posted on <strong>
-                    {post.publishedAt?.toLocaleDateString('en-US', {
+                  This is <strong>{post.title}</strong> by {
+                    useSanity 
+                      ? post.author?.name || 'Anonymous'
+                      : post.author?.name || 'Anonymous'
+                  }, posted on <strong>
+                    {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
@@ -122,18 +135,30 @@ export default async function BlogPost({ params }: PageProps) {
               </div>
 
               {/* Keywords */}
-              {post.tags.length > 0 && (
+              {((useSanity && post.tags?.length > 0) || (!useSanity && post.tags?.length > 0)) && (
                 <div className="mb-8">
                   <div className="flex flex-wrap gap-2">
-                    {post.tags.map((postTag) => (
-                      <span
-                        key={postTag.tag.id}
-                        className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer"
-                      >
-                        {postTag.tag.name}
-                        <span className="ml-1 text-gray-500">{Math.floor(Math.random() * 1000) + 100}</span>
-                      </span>
-                    ))}
+                    {useSanity ? (
+                      post.tags.map((tag: any) => (
+                        <span
+                          key={tag.id}
+                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer"
+                        >
+                          {tag.name}
+                          <span className="ml-1 text-gray-500">{Math.floor(Math.random() * 1000) + 100}</span>
+                        </span>
+                      ))
+                    ) : (
+                      post.tags.map((postTag: any) => (
+                        <span
+                          key={postTag.tag.id}
+                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer"
+                        >
+                          {postTag.tag.name}
+                          <span className="ml-1 text-gray-500">{Math.floor(Math.random() * 1000) + 100}</span>
+                        </span>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -143,7 +168,7 @@ export default async function BlogPost({ params }: PageProps) {
                 {previousPost ? (
                   <p className="text-sm text-gray-600 mb-2">
                     <strong>Previous:</strong>{" "}
-                    <a href={`/posts/${previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
+                    <a href={`/posts/${previousPost.slug?.current || previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
                       {previousPost.title}
                     </a>
                   </p>
@@ -158,8 +183,6 @@ export default async function BlogPost({ params }: PageProps) {
           </aside>
         </div>
       </main>
-
-
 
       <footer className="mt-20 border-t border-gray-200 py-8">
         <div className="max-w-4xl mx-auto px-4 text-center">
