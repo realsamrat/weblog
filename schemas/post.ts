@@ -61,6 +61,27 @@ export default defineType({
             ],
           },
         },
+        {
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alternative Text',
+              description: 'Important for SEO and accessibility.',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'caption',
+              type: 'string',
+              title: 'Caption',
+              description: 'Optional caption for the image.',
+            },
+          ],
+        },
       ],
       validation: (Rule) => Rule.required(),
     }),
