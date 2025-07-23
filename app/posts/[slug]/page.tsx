@@ -1,9 +1,10 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
-import { getPostBySlug as getPayloadPost, getPublishedPosts } from "@/lib/payload-utils"
+import { getPostBySlug as getSanityPost, getPublishedPosts } from "@/lib/sanity"
 import { getPostBySlug as getPrismaPost, getAllPosts, type Post } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
+import { portableTextToHtml } from "@/lib/sanity"
 // Remove lexicalToHTML import as it's not available in this version
 
 interface PageProps {
@@ -15,14 +16,14 @@ interface PageProps {
 export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params
   
-  // Try Payload first, fallback to Prisma
-  let post = await getPayloadPost(slug)
-  let usePayload = true
+  // Try Sanity first, fallback to Prisma
+  let post = await getSanityPost(slug)
+  let useSanity = true
   let allPosts: any[] = []
   
   if (!post) {
     // Fallback to Prisma
-    usePayload = false
+    useSanity = false
     const prismaPost = await getPrismaPost(slug)
     if (!prismaPost || prismaPost.status === Status.DRAFT) {
       notFound()
@@ -37,16 +38,14 @@ export default async function BlogPost({ params }: PageProps) {
   }
 
   // Find previous post
-  const currentPostIndex = allPosts.findIndex((p: any) => p.slug === slug)
+  const currentPostIndex = allPosts.findIndex((p: any) => (p.slug?.current || p.slug) === slug)
   const previousPost = currentPostIndex > 0 ? allPosts[currentPostIndex - 1] : null
 
   // Process content based on source
   let contentHTML = ''
   
-  if (usePayload && post.content?.root?.children) {
-    // Payload Lexical content - for now, just stringify the content
-    // TODO: Implement proper Lexical to HTML conversion
-    contentHTML = `<pre>${JSON.stringify(post.content, null, 2)}</pre>`
+  if (useSanity && Array.isArray(post.content)) {
+    contentHTML = portableTextToHtml(post.content)
   } else if (post.content) {
     // Prisma content (HTML or Markdown)
     if (isHtmlContent(post.content)) {
@@ -66,13 +65,13 @@ export default async function BlogPost({ params }: PageProps) {
             <header className="mb-8">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xs px-2 py-1 bg-teal-100 rounded text-teal-800">
-                  {usePayload 
+                  {useSanity 
                     ? post.categories?.[0]?.name || 'General'
                     : post.category?.name || 'General'
                   }
                 </span>
                 <time className="text-xs text-gray-500">
-                  {new Date(usePayload ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
+                  {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric'
@@ -122,11 +121,11 @@ export default async function BlogPost({ params }: PageProps) {
               <div className="mb-8">
                 <p className="text-sm text-gray-600 mb-2">
                   This is <strong>{post.title}</strong> by {
-                    usePayload 
+                    useSanity 
                       ? post.author?.name || 'Anonymous'
                       : post.author?.name || 'Anonymous'
                   }, posted on <strong>
-                    {new Date(usePayload ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
+                    {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
@@ -136,10 +135,10 @@ export default async function BlogPost({ params }: PageProps) {
               </div>
 
               {/* Keywords */}
-              {((usePayload && post.tags?.length > 0) || (!usePayload && post.tags?.length > 0)) && (
+              {((useSanity && post.tags?.length > 0) || (!useSanity && post.tags?.length > 0)) && (
                 <div className="mb-8">
                   <div className="flex flex-wrap gap-2">
-                    {usePayload ? (
+                    {useSanity ? (
                       post.tags.map((tag: any) => (
                         <span
                           key={tag.id}
@@ -169,7 +168,7 @@ export default async function BlogPost({ params }: PageProps) {
                 {previousPost ? (
                   <p className="text-sm text-gray-600 mb-2">
                     <strong>Previous:</strong>{" "}
-                    <a href={`/posts/${previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
+                    <a href={`/posts/${previousPost.slug?.current || previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
                       {previousPost.title}
                     </a>
                   </p>

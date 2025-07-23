@@ -2,7 +2,8 @@ console.log('Checking environment variables...\n')
 
 const requiredVars = [
   'DATABASE_URL',
-  'PAYLOAD_SECRET',
+  'NEXT_PUBLIC_SANITY_PROJECT_ID',
+  'NEXT_PUBLIC_SANITY_DATASET',
   'NEXT_PUBLIC_SERVER_URL'
 ]
 
@@ -35,12 +36,17 @@ optionalVars.forEach(varName => {
   }
 })
 
-console.log('\nPayload Secret length:', process.env.PAYLOAD_SECRET?.length || 0, '(should be at least 32)')
+console.log('\nSanity Project ID:', process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'Not set')
+console.log('Sanity Dataset:', process.env.NEXT_PUBLIC_SANITY_DATASET || 'Not set')
 
 if (!process.env.DATABASE_URL) {
-  console.log('\n⚠️  WARNING: DATABASE_URL is not set. Payload CMS will not be able to connect to the database.')
+  console.log('\n⚠️  WARNING: DATABASE_URL is not set. The application will not be able to connect to the database.')
 }
 
-if (!process.env.PAYLOAD_SECRET || process.env.PAYLOAD_SECRET.length < 32) {
-  console.log('\n⚠️  WARNING: PAYLOAD_SECRET should be at least 32 characters long for security.')
+if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+  console.log('\n⚠️  WARNING: NEXT_PUBLIC_SANITY_PROJECT_ID is not set. Sanity CMS will not work.')
+}
+
+if (!process.env.NEXT_PUBLIC_SANITY_DATASET) {
+  console.log('\n⚠️  WARNING: NEXT_PUBLIC_SANITY_DATASET is not set. Sanity CMS will not work.')
 }

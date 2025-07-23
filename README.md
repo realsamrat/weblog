@@ -1,6 +1,6 @@
 # Weblog Blog
 
-A modern blog platform built with Next.js, Prisma, and Payload CMS.
+A modern blog platform built with Next.js, Prisma, and Sanity CMS.
 
 ## 🚀 Getting Started
 
@@ -13,6 +13,12 @@ A modern blog platform built with Next.js, Prisma, and Payload CMS.
 
 1. **Environment Variables**
    This project uses Doppler for secret management. Make sure you have access to the `weblog-ops` project.
+   
+   Required environment variables:
+   - `DATABASE_URL`: PostgreSQL connection string
+   - `NEXT_PUBLIC_SANITY_PROJECT_ID`: Your Sanity project ID
+   - `NEXT_PUBLIC_SANITY_DATASET`: Sanity dataset (usually "production")
+   - `NEXT_PUBLIC_SERVER_URL`: Your application URL
 
 2. **Install Dependencies**
    ```bash
@@ -32,31 +38,24 @@ A modern blog platform built with Next.js, Prisma, and Payload CMS.
 
 ## 📝 Content Management
 
-### Payload CMS Admin Interface
+### Sanity Studio
 
-Access the Payload CMS admin interface at: `http://localhost:3000/admin`
-
-**Default Admin Credentials:**
-- Email: `admin@example.com`
-- Password: `admin123`
-
-**Important:** Change the default password after first login!
+Access the Sanity Studio at: `http://localhost:3000/studio`
 
 ### Features
 
-- **Rich Text Editor**: Create and edit blog posts with a powerful Lexical-based editor
+- **Rich Text Editor**: Create and edit blog posts with Sanity's Portable Text editor
 - **Media Management**: Upload and manage images and files
 - **Categories & Tags**: Organize content with categories and tags
 - **Authors**: Manage multiple authors for the blog
 - **Draft/Published Status**: Control post visibility and publication
 
-### Collections
+### Content Types
 
-- **Posts** (`/admin/collections/payload_posts`): Manage blog posts
-- **Categories** (`/admin/collections/payload_categories`): Organize posts by category
-- **Tags** (`/admin/collections/payload_tags`): Tag posts for better organization
-- **Authors** (`/admin/collections/payload_authors`): Manage blog authors
-- **Media** (`/admin/collections/payload_media`): Upload and manage media files
+- **Posts**: Manage blog posts with rich text content
+- **Categories**: Organize posts by category
+- **Tags**: Tag posts for better organization
+- **Authors**: Manage blog authors
 
 ## 🛠 Development Scripts
 
@@ -64,7 +63,6 @@ Access the Payload CMS admin interface at: `http://localhost:3000/admin`
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run db:studio` - Open Prisma Studio
-- `npm run payload:generate-types` - Generate Payload TypeScript types
 
 ## 🔒 Security
 
@@ -74,9 +72,9 @@ All sensitive configuration is managed through Doppler. The application automati
 
 - **Framework**: Next.js 15
 - **Database**: PostgreSQL with Prisma ORM
-- **CMS**: Payload CMS 3.x
+- **CMS**: Sanity CMS
 - **Styling**: Tailwind CSS
-- **Rich Text**: Lexical Editor
+- **Rich Text**: Portable Text
 - **Secrets**: Doppler
 - **Deployment**: Vercel (recommended)
 
@@ -90,4 +88,4 @@ The application includes a built-in image upload API at `/api/upload` that handl
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. 
+Contributions are welcome! Please feel free to submit a Pull Request.  

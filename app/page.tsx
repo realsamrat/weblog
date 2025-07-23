@@ -3,19 +3,19 @@ import BlogPostCard from "@/components/blog-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
 import PopularKeywords from "@/components/popular-keywords"
 import PopularPostsList from "@/components/popular-posts-list"
-import { getPublishedPosts, getFeaturedPosts } from "@/lib/payload-utils"
+import { getPublishedPosts, getFeaturedPosts } from "@/lib/sanity"
 import { getAllPosts, getFeaturedPost, getPopularPosts, getPopularKeywords } from "@/lib/posts"
 import { Status } from "@prisma/client"
 
 export default async function Home() {
-  // Try Payload first, fallback to Prisma
+  // Try Sanity first, fallback to Prisma
   let allPublishedPosts = await getPublishedPosts(20)
   let featuredPost = null
-  let usePayload = true
+  let useSanity = true
   
   if (allPublishedPosts.length === 0) {
     // Fallback to Prisma
-    usePayload = false
+    useSanity = false
     const prismaData = await getAllPosts({ status: Status.PUBLISHED })
     allPublishedPosts = prismaData
     const featuredData = await getFeaturedPost()
@@ -44,12 +44,12 @@ export default async function Home() {
               <FeaturedPostCard
                 title={featuredPost.title}
                 excerpt={featuredPost.excerpt || ""}
-                date={usePayload 
+                date={useSanity 
                   ? new Date(featuredPost.publishedAt).toISOString().split('T')[0]
                   : featuredPost.publishedAt?.toISOString().split('T')[0] || ""
                 }
-                slug={featuredPost.slug}
-                category={usePayload 
+                slug={featuredPost.slug.current || featuredPost.slug}
+                category={useSanity 
                   ? featuredPost.categories?.[0]?.name || "General"
                   : featuredPost.category?.name || "General"
                 }
@@ -63,12 +63,12 @@ export default async function Home() {
                   key={post.slug}
                   title={post.title}
                   excerpt={post.excerpt || ""}
-                  date={usePayload
+                  date={useSanity
                     ? new Date(post.publishedAt).toISOString().split('T')[0]
                     : post.publishedAt?.toISOString().split('T')[0] || ""
                   }
-                  slug={post.slug}
-                  category={usePayload
+                  slug={post.slug.current || post.slug}
+                  category={useSanity
                     ? post.categories?.[0]?.name || "General"
                     : post.category?.name || "General"
                   }
