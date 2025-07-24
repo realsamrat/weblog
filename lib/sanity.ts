@@ -152,8 +152,7 @@ export async function getPublishedPosts(limit?: number) {
           _id,
           name,
           slug
-        },
-        keywords
+        }
       }`
     )
     return posts
@@ -193,8 +192,7 @@ export async function getPostBySlug(slug: string) {
           _id,
           name,
           slug
-        },
-        keywords
+        }
       }`,
       { slug }
     )
@@ -235,8 +233,7 @@ export async function getFeaturedPosts() {
           _id,
           name,
           slug
-        },
-        keywords
+        }
       }`
     )
     return posts
@@ -276,8 +273,7 @@ export async function getPostsByCategory(categorySlug: string) {
           _id,
           name,
           slug
-        },
-        keywords
+        }
       }`,
       { categorySlug }
     )
@@ -306,30 +302,61 @@ export async function getAllCategories() {
   }
 }
 
-export function extractKeywordsFromContent(content: any[]): string[] {
-  if (!content || !Array.isArray(content)) {
+
+export async function getAllSanityTags() {
+  try {
+    const tags = await client.fetch(
+      `*[_type == "tag"] | order(name asc) {
+        _id,
+        name,
+        slug,
+        "postCount": count(*[_type == "post" && status == "PUBLISHED" && references(^._id)])
+      }`
+    )
+    return tags
+  } catch (error) {
+    console.error('Error fetching Sanity tags:', error)
     return []
   }
-  
-  const text = getPlainTextFromPortableText(content)
-  
-  const stopWords = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'man', 'way', 'she', 'use', 'your', 'said', 'each', 'make', 'most', 'over', 'such', 'very', 'what', 'with', 'have', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time', 'will', 'when', 'come', 'here', 'just', 'like', 'long', 'many', 'than', 'them', 'well', 'were'])
-  
-  const words = text.toLowerCase()
-    .replace(/[^\w\s]/g, ' ')
-    .split(/\s+/)
-    .filter(word => word.length > 3 && !stopWords.has(word))
-  
-  const wordCount: Record<string, number> = {}
-  words.forEach(word => {
-    wordCount[word] = (wordCount[word] || 0) + 1
-  })
-  
-  const keywords = Object.entries(wordCount)
-    .filter(([, count]) => count >= 2) // Must appear at least twice
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 8) // Limit to 8 keywords
-    .map(([word]) => word)
-  
-  return keywords
+}
+
+export async function getPostsByTag(tagSlug: string) {
+  try {
+    const posts = await client.fetch(
+      `*[_type == "post" && status == "PUBLISHED" && $tagSlug in tags[]->slug.current] | order(publishedAt desc) {
+        _id,
+        title,
+        slug,
+        excerpt,
+        content,
+        imageUrl,
+        status,
+        featured,
+        publishedAt,
+        author->{
+          _id,
+          name,
+          bio,
+          avatar
+        },
+        categories[]->{
+          _id,
+          name,
+          slug,
+          description,
+          color
+        },
+        tags[]->{
+          _id,
+          name,
+          slug
+        }
+      }`,
+      { tagSlug }
+    )
+    return posts
+  } catch (error) {
+    console.error('Error fetching posts by tag:', error)
+    return []
+  }
 }

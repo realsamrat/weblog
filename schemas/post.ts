@@ -194,16 +194,7 @@ export default defineType({
       title: 'Tags',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'tag' }] }],
-    }),
-    defineField({
-      name: 'keywords',
-      title: 'Keywords (Auto-generated)',
-      type: 'array',
-      of: [{ type: 'string' }],
-      description: 'Auto-generated keywords based on content. Use the "Generate Keywords" action to update.',
-      validation: (Rule) => Rule.custom((value, context) => {
-        return true
-      }),
+      description: 'Tags for this post. Add custom tags manually, or use "Generate Tags" to append auto-generated ones based on content.',
     }),
   ],
   preview: {

@@ -21,6 +21,7 @@ export default async function BlogPost({ params }: PageProps) {
   let useSanity = true
   let allPosts: any[] = []
   
+  
   if (!post) {
     // Fallback to Prisma
     useSanity = false
@@ -134,47 +135,30 @@ export default async function BlogPost({ params }: PageProps) {
                 </p>
               </div>
 
-              {/* Auto-generated Keywords */}
-              {useSanity && post.keywords?.length > 0 && (
-                <div className="mb-8">
-                  <h4 className="font-serif text-sm font-semibold mb-2 text-gray-800">Auto-generated Keywords</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {post.keywords.map((keyword: string, index: number) => (
-                      <span
-                        key={`keyword-${index}`}
-                        className="text-xs px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Manual Tags */}
+              {/* Tags */}
               {((useSanity && post.tags?.length > 0) || (!useSanity && post.tags?.length > 0)) && (
                 <div className="mb-8">
                   <h4 className="font-serif text-sm font-semibold mb-2 text-gray-800">Tags</h4>
                   <div className="flex flex-wrap gap-2">
                     {useSanity ? (
                       post.tags.map((tag: any) => (
-                        <span
-                          key={tag.id}
-                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer"
+                        <Link
+                          key={tag._id}
+                          href={`/tags/${tag.slug.current}`}
+                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors"
                         >
                           {tag.name}
-                          <span className="ml-1 text-gray-500">{Math.floor(Math.random() * 1000) + 100}</span>
-                        </span>
+                        </Link>
                       ))
                     ) : (
                       post.tags.map((postTag: any) => (
-                        <span
+                        <Link
                           key={postTag.tag.id}
-                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer"
+                          href={`/tags/${postTag.tag.slug}`}
+                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors"
                         >
                           {postTag.tag.name}
-                          <span className="ml-1 text-gray-500">{Math.floor(Math.random() * 1000) + 100}</span>
-                        </span>
+                        </Link>
                       ))
                     )}
                   </div>
