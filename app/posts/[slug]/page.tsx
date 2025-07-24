@@ -99,7 +99,7 @@ export default async function BlogPost({ params }: PageProps) {
                   
                   return (
                     <span 
-                      className="text-xs px-2 py-1 rounded"
+                      className="text-xs px-2 py-1 rounded font-mono uppercase"
                       style={styles}
                     >
                       {categoryName}

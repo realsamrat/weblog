@@ -21,7 +21,7 @@ export default function BlogPostCard({ title, excerpt, date, slug, category }: B
     <article className="border-b border-gray-100 pb-8 mb-8 last:border-b-0">
       <div className="flex items-center gap-2 mb-2">
         <span 
-          className="text-xs px-2 py-1 rounded"
+          className="text-xs px-2 py-1 rounded font-mono uppercase"
           style={styles}
         >
           {categoryName}

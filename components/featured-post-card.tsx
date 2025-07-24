@@ -22,7 +22,7 @@ export default function FeaturedPostCard({ title, excerpt, date, slug, category 
       <div className="flex items-center gap-2 mb-3">
         <span className="text-sm px-3 py-1 bg-yellow-100 rounded text-yellow-800 font-semibold">Featured</span>
         <span 
-          className="text-xs px-2 py-1 rounded"
+          className="text-xs px-2 py-1 rounded font-mono uppercase"
           style={styles}
         >
           {categoryName}

@@ -96,7 +96,7 @@ export default async function TagPage({ params }: TagPageProps) {
                         return (
                           <span
                             key={category._id}
-                            className="text-xs px-2 py-1 rounded"
+                            className="text-xs px-2 py-1 rounded font-mono uppercase"
                             style={styles}
                           >
                             {category.name}
