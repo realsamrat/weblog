@@ -8,7 +8,7 @@ interface PopularTagsProps {
 export default function PopularTags({ tags }: PopularTagsProps) {
   return (
     <div className="mb-10">
-      <h3 className="font-serif text-lg font-semibold mb-3">Popular Tags</h3>
+      <h3 className="font-sf-pro-display text-lg font-semibold mb-3">Popular Tags</h3>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => (
           <Link

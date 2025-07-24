@@ -65,10 +65,10 @@ export default async function Home() {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <main className="max-w-4xl mx-auto px-4 pt-6">
+      <main className="max-w-6xl mx-auto px-4 pt-6">
         <div className="flex flex-col md:flex-row gap-12">
           {/* Main content area */}
-          <div className="w-full md:w-2/3">
+          <div className="flex-1">
             {featuredPost && (
               <FeaturedPostCard
                 title={featuredPost.title}
@@ -85,7 +85,7 @@ export default async function Home() {
               />
             )}
 
-            <h2 className="font-serif text-2xl font-semibold mb-6 mt-10 pt-8 border-t border-gray-300">Recent Posts</h2>
+            <h2 className="font-sf-pro-display text-3xl font-bold mb-6 mt-10 pt-8 border-t border-gray-300">Recent Posts</h2>
             <div className="space-y-0">
               {otherPosts.map((post: any) => (
                 <BlogPostCard
@@ -107,15 +107,17 @@ export default async function Home() {
           </div>
 
           {/* Sidebar */}
-          <aside className="w-full md:w-1/3 md:sticky md:top-8 h-fit">
-            <PopularTags tags={popularTagsData.slice(0, 7)} />
-            <PopularPostsList posts={popularPostsData} />
+          <aside className="w-80 flex-shrink-0">
+            <div className="sticky top-20">
+              <PopularTags tags={popularTagsData.slice(0, 7)} />
+              <PopularPostsList posts={popularPostsData} />
+            </div>
           </aside>
         </div>
       </main>
 
       <footer className="mt-20 border-t border-gray-200 py-4">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
         </div>
       </footer>

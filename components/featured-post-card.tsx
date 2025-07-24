@@ -29,7 +29,7 @@ export default function FeaturedPostCard({ title, excerpt, date, slug, category 
         </span>
         <time className="text-xs text-gray-500 font-mono">{date}</time>
       </div>
-      <h2 className="font-serif text-3xl font-bold mb-4 leading-tight">
+      <h2 className="font-sf-pro-display text-3xl font-bold mb-4 leading-tight">
         <Link href={`/posts/${slug}`} className="hover:text-gray-600 transition-colors">
           {title}
         </Link>

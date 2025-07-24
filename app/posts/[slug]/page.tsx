@@ -83,10 +83,10 @@ export default async function BlogPost({ params }: PageProps) {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <main className="max-w-4xl mx-auto px-4">
+      <main className="max-w-6xl mx-auto px-4">
         <div className="flex gap-12">
           {/* Main content */}
-          <article className="flex-1 max-w-xl">
+          <article className="flex-1">
             <header className="mb-8">
               <div className="flex items-center gap-2 mb-4">
                 {(() => {
@@ -114,18 +114,24 @@ export default async function BlogPost({ params }: PageProps) {
                   })}
                 </time>
               </div>
-              <h1 className="font-serif text-3xl font-bold leading-tight mb-4">{post.title}</h1>
+              <h1 className="font-sf-pro-display text-5xl font-bold leading-[52px] tracking-[-0.1px] mb-4">{post.title}</h1>
             </header>
 
             <div 
               className="prose prose-base max-w-none text-black [&>*]:mb-4 [&>*:last-child]:mb-0
-                [&_h1]:font-serif [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4
-                [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-4
-                [&_h3]:font-serif [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3
-                [&_p]:leading-relaxed [&_p]:text-black [&_p]:font-medium
+                [&_h1]:font-sf-pro-display [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4
+                [&_h2]:font-sf-pro-display [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-4
+                [&_h3]:font-sf-pro-display [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3
+                [&_h4]:font-sf-pro-display [&_h4]:text-base [&_h4]:font-semibold [&_h4]:mt-4 [&_h4]:mb-2
+                [&_h5]:font-sf-pro-display [&_h5]:text-sm [&_h5]:font-semibold [&_h5]:mt-4 [&_h5]:mb-2
+                [&_h6]:font-sf-pro-display [&_h6]:text-xs [&_h6]:font-semibold [&_h6]:mt-4 [&_h6]:mb-2
+                [&_p]:leading-[27px] [&_p]:text-black [&_p]:font-normal [&_p]:font-sf-pro-display [&_p]:text-[19px] [&_p]:tracking-[0.2px]
                 [&_strong]:font-semibold
                 [&_em]:italic
                 [&_code]:bg-gray-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_code]:text-gray-800
+                [&_code:has(iframe)]:bg-transparent [&_code:has(iframe)]:p-0 [&_code:has(iframe)]:block [&_code:has(iframe)]:w-full [&_code:has(iframe)]:font-sans [&_code:has(iframe)]:text-base
+                [&_code:has(iframe)]:before:content-none [&_code:has(iframe)]:after:content-none
+                [&_code_iframe]:my-4 [&_code_iframe]:block
                 [&_div[data-language]]:my-6 [&_div[data-language]]:border-2 [&_div[data-language]]:border-black [&_div[data-language]]:rounded-md [&_div[data-language]]:overflow-hidden [&_div[data-language]]:bg-white
                 [&_pre]:my-6 [&_pre]:border-2 [&_pre]:border-black [&_pre]:rounded-md [&_pre]:overflow-hidden [&_pre]:bg-white [&_pre]:p-0 [&_pre]:relative
                 [&_pre_code]:bg-white [&_pre_code]:text-black [&_pre_code]:p-4 [&_pre_code]:block [&_pre_code]:whitespace-pre-wrap [&_pre_code]:break-words [&_pre_code]:font-mono [&_pre_code]:text-sm [&_pre_code]:leading-relaxed [&_pre_code]:border-0 [&_pre_code]:rounded-none
@@ -136,7 +142,9 @@ export default async function BlogPost({ params }: PageProps) {
                 [&_ol]:ml-4 [&_ol]:list-decimal [&_ol]:space-y-1
                 [&_li]:leading-relaxed [&_li]:text-black
                 [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-800
-                [&_img]:rounded-md [&_img]:max-w-full [&_img]:h-auto [&_img]:my-6"
+                [&_img]:rounded-lg [&_img]:max-w-full [&_img]:h-auto [&_img]:my-6
+                [&_iframe]:rounded-lg [&_iframe]:max-w-full [&_iframe]:my-6 [&_iframe]:before:content-[''] [&_iframe]:after:content-[''] [&_iframe]:before:hidden [&_iframe]:after:hidden
+                [&_video]:rounded-lg [&_video]:max-w-full [&_video]:h-auto [&_video]:my-6"
               dangerouslySetInnerHTML={{ __html: contentHTML }}
             />
 
@@ -152,7 +160,7 @@ export default async function BlogPost({ params }: PageProps) {
 
           {/* Sidebar */}
           <aside className="w-80 flex-shrink-0">
-            <div className="sticky top-8">
+            <div className="sticky top-20">
               {/* Post metadata */}
               <div className="mb-8">
                 <p className="text-sm text-gray-600 mb-2">
@@ -222,7 +230,7 @@ export default async function BlogPost({ params }: PageProps) {
       </main>
 
       <footer className="mt-20 border-t border-gray-200 py-8">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
         </div>
       </footer>

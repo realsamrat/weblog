@@ -4,7 +4,7 @@ export default function About() {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <main className="max-w-4xl mx-auto px-4">
+      <main className="max-w-6xl mx-auto px-4">
         <article>
           <header className="mb-8">
             <h1 className="font-serif text-3xl font-bold leading-tight mb-4">About Weblog</h1>
@@ -70,7 +70,7 @@ export default function About() {
       <footer className="mt-20 border-t border-gray-200 py-4">
         {" "}
         {/* Reduced py-8 to py-4 */}
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
         </div>
       </footer>

@@ -27,7 +27,7 @@ export default async function TagPage({ params }: TagPageProps) {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Tag Header */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">

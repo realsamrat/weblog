@@ -28,7 +28,7 @@ export default function BlogPostCard({ title, excerpt, date, slug, category }: B
         </span>
         <time className="text-xs text-gray-500 font-mono">{date}</time>
       </div>
-      <h2 className="font-serif text-xl font-semibold mb-3 leading-tight">
+      <h2 className="font-sf-pro-display text-xl font-semibold mb-3 leading-tight">
         <Link href={`/posts/${slug}`} className="hover:text-gray-600 transition-colors">
           {title}
         </Link>

@@ -125,7 +125,7 @@ export const components = {
   // Navigation
   navigation: {
     container: 'bg-black text-white mb-6',
-    wrapper: 'max-w-4xl mx-auto px-4 py-2',
+    wrapper: 'max-w-6xl mx-auto px-4 py-2',
     logo: 'font-serif text-2xl font-bold text-white hover:text-gray-300 transition-colors flex items-baseline',
     logoAccent: 'ml-1 text-orange-500 text-4xl leading-none',
     link: 'text-sm hover:text-gray-300 transition-colors'
@@ -224,7 +224,7 @@ export const components = {
 // Layout tokens
 export const layout = {
   container: {
-    main: 'max-w-4xl mx-auto px-4',
+    main: 'max-w-6xl mx-auto px-4',
     content: 'min-h-screen'
   },
   grid: {
@@ -235,7 +235,7 @@ export const layout = {
   },
   footer: {
     container: 'mt-20 border-t border-gray-200 py-8',
-    content: 'max-w-4xl mx-auto px-4 text-center',
+    content: 'max-w-6xl mx-auto px-4 text-center',
     text: 'text-xs text-gray-500'
   }
 } as const
