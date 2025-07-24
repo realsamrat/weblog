@@ -49,7 +49,8 @@ export default function PostForm({ initialData = null, categories, authors }: Po
   const [categoryId, setCategoryId] = useState<string>("")
   const [authorId, setAuthorId] = useState<string>("")
   const [date, setDate] = useState("")
-  const [keywords, setKeywords] = useState("")
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+  const [availableTags, setAvailableTags] = useState<any[]>([])
   const [content, setContent] = useState("")
   const [htmlContent, setHtmlContent] = useState("")
   const [status, setStatus] = useState<"published" | "draft">("draft")
@@ -120,7 +121,7 @@ export default function PostForm({ initialData = null, categories, authors }: Po
         setCategoryId(initialCategoryId)
         setAuthorId(initialAuthorId)
         setDate(initialData.publishedAt?.toISOString().split("T")[0] || new Date().toISOString().split("T")[0])
-        setKeywords("") // Tags will need to be handled separately
+        setSelectedTagIds([]) // Tags will need to be handled separately
         
         // Handle content - store HTML directly
         const rawContent = initialData.content || ""
@@ -154,7 +155,7 @@ export default function PostForm({ initialData = null, categories, authors }: Po
         setCategoryId(defaultCategoryId)
         setAuthorId(defaultAuthorId)
         setDate(new Date().toISOString().split("T")[0])
-        setKeywords("")
+        setSelectedTagIds([])
         setContent("")
         setHtmlContent("")
         setStatus("draft")
@@ -550,15 +551,50 @@ export default function PostForm({ initialData = null, categories, authors }: Po
                 </div>
 
                 <div>
-                  <Label htmlFor="keywords">Keywords (comma-separated)</Label>
-                  <Input
-                    name="keywords"
-                    id="keywords"
-                    value={keywords}
-                    onChange={(e) => setKeywords(e.target.value)}
-                    placeholder="e.g., ai, javascript, security"
-                  />
-                  {formErrors?.keywords && <p className="text-xs text-red-500 mt-1">{formErrors.keywords[0]}</p>}
+                  <Label htmlFor="tags">Tags</Label>
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2 min-h-[2.5rem] p-2 border rounded-md">
+                      {selectedTagIds.length === 0 ? (
+                        <span className="text-gray-500 text-sm">No tags selected</span>
+                      ) : (
+                        selectedTagIds.map((tagId) => {
+                          const tag = availableTags.find(t => t._id === tagId)
+                          return tag ? (
+                            <span key={tagId} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                              {tag.name}
+                              <button
+                                type="button"
+                                onClick={() => setSelectedTagIds(prev => prev.filter(id => id !== tagId))}
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ) : null
+                        })
+                      )}
+                    </div>
+                    <select
+                      onChange={(e) => {
+                        const tagId = e.target.value
+                        if (tagId && !selectedTagIds.includes(tagId)) {
+                          setSelectedTagIds(prev => [...prev, tagId])
+                        }
+                        e.target.value = ""
+                      }}
+                      className="w-full p-2 border rounded-md text-sm"
+                    >
+                      <option value="">Add a tag...</option>
+                      {availableTags
+                        .filter(tag => !selectedTagIds.includes(tag._id))
+                        .map(tag => (
+                          <option key={tag._id} value={tag._id}>
+                            {tag.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  {formErrors?.tags && <p className="text-xs text-red-500 mt-1">{formErrors.tags[0]}</p>}
                 </div>
 
                 <div>

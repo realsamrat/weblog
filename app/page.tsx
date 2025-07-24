@@ -1,10 +1,10 @@
 import Navigation from "@/components/navigation"
 import BlogPostCard from "@/components/blog-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
-import PopularKeywords from "@/components/popular-keywords"
+import PopularTags from "@/components/popular-tags"
 import PopularPostsList from "@/components/popular-posts-list"
-import { getPublishedPosts, getFeaturedPosts } from "@/lib/sanity"
-import { getAllPosts, getFeaturedPost, getPopularPosts, getPopularKeywords } from "@/lib/posts"
+import { getPublishedPosts, getFeaturedPosts, getAllSanityTags } from "@/lib/sanity"
+import { getAllPosts, getFeaturedPost, getPopularPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 
 export default async function Home() {
@@ -29,9 +29,9 @@ export default async function Home() {
     ? allPublishedPosts.filter((post: any) => post.slug !== featuredPost.slug)
     : allPublishedPosts
 
-  // For now, using existing data for popular posts and keywords
+  // For now, using existing data for popular posts and tags
   const popularPostsData = await getPopularPosts(7)
-  const popularKeywordsData = await getPopularKeywords(7)
+  const popularTagsData = await getAllSanityTags()
 
   return (
     <div className="min-h-screen">
@@ -79,7 +79,7 @@ export default async function Home() {
 
           {/* Sidebar */}
           <aside className="w-full md:w-1/3 md:sticky md:top-8 h-fit">
-            <PopularKeywords keywords={popularKeywordsData} />
+            <PopularTags tags={popularTagsData.slice(0, 7)} />
             <PopularPostsList posts={popularPostsData} />
           </aside>
         </div>

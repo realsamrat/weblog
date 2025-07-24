@@ -5,15 +5,15 @@
  * to maintain consistency across your blog application.
  */
 
-import { getKeywordStyles, getCategoryStyles, getAlertStyles, components, layout, colors } from './design-tokens'
+import { getTagStyles, getCategoryStyles, getAlertStyles, components, layout, colors } from './design-tokens'
 
-// Example 1: Using keyword styles
-export function KeywordExample({ keywords }: { keywords: string[] }) {
+// Example 1: Using tag styles
+export function TagExample({ tags }: { tags: string[] }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {keywords.map((keyword) => (
-        <span key={keyword} className={getKeywordStyles()}>
-          {keyword}
+      {tags.map((tag) => (
+        <span key={tag} className={getTagStyles()}>
+          {tag}
         </span>
       ))}
     </div>
@@ -138,8 +138,8 @@ export function CustomComponentExample() {
           This component uses multiple design tokens for consistent styling.
         </p>
         <div className="flex gap-2">
-          <span className={getKeywordStyles()}>Design</span>
-          <span className={getKeywordStyles()}>Tokens</span>
+          <span className={getTagStyles()}>Design</span>
+          <span className={getTagStyles()}>Tokens</span>
           <span className={getCategoryStyles('programming')}>Programming</span>
         </div>
       </div>
@@ -160,9 +160,9 @@ export function CustomComponentExample() {
  * <span className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400">
  * 
  * After:
- * <span className={getKeywordStyles()}>
+ * <span className={getTagStyles()}>
  * 
  * Or:
  * import { components } from './design-tokens'
- * <span className={components.keyword.base}>
+ * <span className={components.tag.base}>
  */
