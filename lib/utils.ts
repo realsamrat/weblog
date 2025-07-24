@@ -57,7 +57,7 @@ export function generatePastelColor(input: string): string {
 export function generateRandomPastelColor(): string {
   const hue = Math.floor(Math.random() * 360)
   const saturation = 40 + Math.floor(Math.random() * 20) // 40-60%
-  const lightness = 70 + Math.floor(Math.random() * 15) // 70-85%
+  const lightness = 80 + Math.floor(Math.random() * 15) // 80-95%
   
   const hslToHex = (h: number, s: number, l: number) => {
     l /= 100
