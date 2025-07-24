@@ -93,11 +93,11 @@ export default async function BlogPost({ params }: PageProps) {
             </header>
 
             <div 
-              className="prose prose-sm max-w-none text-black [&>*]:mb-4 [&>*:last-child]:mb-0
+              className="prose prose-base max-w-none text-black [&>*]:mb-4 [&>*:last-child]:mb-0
                 [&_h1]:font-serif [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4
                 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-4
                 [&_h3]:font-serif [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3
-                [&_p]:leading-relaxed [&_p]:text-black
+                [&_p]:leading-relaxed [&_p]:text-black [&_p]:font-medium
                 [&_strong]:font-semibold
                 [&_em]:italic
                 [&_code]:bg-gray-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_code]:text-gray-800
