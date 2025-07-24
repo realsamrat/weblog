@@ -84,93 +84,98 @@ export default async function BlogPost({ params }: PageProps) {
   return (
     <div className="min-h-screen">
       <Navigation />
+      
+      {/* Full-width Hero Header */}
+      <div className="w-full bg-white">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Category and Social Share Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-6">
+            <div className="flex items-center gap-2">
+              {(() => {
+                const category = useSanity 
+                  ? post.categories?.[0] 
+                  : post.category
+                const categoryName = category?.name || 'General'
+                const categoryColor = category?.color
+                const styles = getCategoryStyles(categoryColor)
+                
+                return (
+                  <span 
+                    className="inline-block text-xs px-3 py-1.5 rounded-md font-mono uppercase font-semibold tracking-wide transition-all duration-200 hover:shadow-sm"
+                    style={styles}
+                  >
+                    {categoryName}
+                  </span>
+                )
+              })()}
+            </div>
+            <div className="flex justify-end">
+              <SocialShare 
+                url={typeof window !== 'undefined' ? window.location.href : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/posts/${useSanity ? post.slug?.current : post.slug}`}
+                title={post.title}
+                className="flex-shrink-0"
+              />
+            </div>
+          </div>
+
+          {/* Featured Image Section */}
+          {post.imageUrl ? (
+            <div className="relative mb-8">
+              <div className="aspect-[16/9] sm:aspect-[3/2] lg:aspect-[16/9] overflow-hidden rounded-lg bg-gray-100 shadow-sm">
+                <img 
+                  src={post.imageUrl} 
+                  alt={post.title}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  loading="eager"
+                />
+              </div>
+              <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 text-xs text-white bg-black bg-opacity-70 px-2 py-1 rounded backdrop-blur-sm">
+                <span className="font-mono">IMAGE CREDITS:</span> Stock Photo
+              </div>
+            </div>
+          ) : (
+            <div className="mb-8">
+              <div className="h-1 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-full mb-4"></div>
+            </div>
+          )}
+
+          {/* Title and Meta */}
+          <div className="space-y-6">
+            <h1 className="font-sf-pro-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-[-0.02em] text-gray-900 max-w-4xl">
+              {post.title}
+            </h1>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-gray-900">
+                  {useSanity 
+                    ? post.author?.name || 'Anonymous'
+                    : post.author?.name || 'Anonymous'
+                  }
+                </span>
+              </div>
+              <span className="hidden sm:inline text-gray-400">•</span>
+              <time className="font-mono text-gray-500">
+                {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })} at {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })}
+              </time>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-4">
         <div className="flex gap-12">
           {/* Main content */}
           <article className="flex-1">
-            {/* Hero Header */}
-            <div className="mb-8">
-              {/* Category and Social Share Row */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-6">
-                <div className="flex items-center gap-2">
-                  {(() => {
-                    const category = useSanity 
-                      ? post.categories?.[0] 
-                      : post.category
-                    const categoryName = category?.name || 'General'
-                    const categoryColor = category?.color
-                    const styles = getCategoryStyles(categoryColor)
-                    
-                    return (
-                      <span 
-                        className="inline-block text-xs px-3 py-1.5 rounded-md font-mono uppercase font-semibold tracking-wide transition-all duration-200 hover:shadow-sm"
-                        style={styles}
-                      >
-                        {categoryName}
-                      </span>
-                    )
-                  })()}
-                </div>
-                <div className="flex justify-end">
-                  <SocialShare 
-                    url={typeof window !== 'undefined' ? window.location.href : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/posts/${useSanity ? post.slug?.current : post.slug}`}
-                    title={post.title}
-                    className="flex-shrink-0"
-                  />
-                </div>
-              </div>
-
-              {/* Featured Image Section */}
-              {post.imageUrl ? (
-                <div className="relative mb-6">
-                  <div className="aspect-[16/9] sm:aspect-[3/2] lg:aspect-[16/9] overflow-hidden rounded-lg bg-gray-100 shadow-sm">
-                    <img 
-                      src={post.imageUrl} 
-                      alt={post.title}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                      loading="eager"
-                    />
-                  </div>
-                  <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 text-xs text-white bg-black bg-opacity-70 px-2 py-1 rounded backdrop-blur-sm">
-                    <span className="font-mono">IMAGE CREDITS:</span> Stock Photo
-                  </div>
-                </div>
-              ) : (
-                <div className="mb-6">
-                  <div className="h-1 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-full mb-4"></div>
-                </div>
-              )}
-
-              {/* Title and Meta */}
-              <div className="space-y-6">
-                <h1 className="font-sf-pro-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-[-0.02em] text-gray-900 max-w-4xl">
-                  {post.title}
-                </h1>
-                
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">
-                      {useSanity 
-                        ? post.author?.name || 'Anonymous'
-                        : post.author?.name || 'Anonymous'
-                      }
-                    </span>
-                  </div>
-                  <span className="hidden sm:inline text-gray-400">•</span>
-                  <time className="font-mono text-gray-500">
-                    {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })} at {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleTimeString('en-US', {
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true
-                    })}
-                  </time>
-                </div>
-              </div>
-            </div>
 
             <div 
               className="prose prose-base max-w-none text-black [&>*]:mb-4 [&>*:last-child]:mb-0
