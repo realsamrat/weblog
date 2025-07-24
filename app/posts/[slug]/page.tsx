@@ -1,6 +1,6 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
-import { getPostBySlug as getSanityPost, getPublishedPosts } from "@/lib/sanity"
+import { getPostBySlug as getSanityPost, getPublishedPosts, getTagsWithCounts } from "@/lib/sanity"
 import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
@@ -21,8 +21,9 @@ export default async function BlogPost({ params }: PageProps) {
   let post = await getSanityPost(slug)
   let useSanity = true
   let allPosts: any[] = []
+  let tagsWithCounts: any[] = []
   
-  
+
   if (!post) {
     // Fallback to Prisma
     useSanity = false
@@ -37,7 +38,15 @@ export default async function BlogPost({ params }: PageProps) {
     })
   } else {
     allPosts = await getPublishedPosts(100)
+    if (post.tags && post.tags.length > 0) {
+      const tagIds = post.tags.map((tag: any) => tag._id)
+      tagsWithCounts = await getTagsWithCounts(tagIds)
+    }
   }
+
+  console.log('Post data:', JSON.stringify(post, null, 2))
+  console.log('useSanity:', useSanity)
+  console.log('post.tags:', post.tags)
 
   // Find previous post
   const currentPostIndex = allPosts.findIndex((p: any) => (p.slug?.current || p.slug) === slug)
@@ -137,18 +146,18 @@ export default async function BlogPost({ params }: PageProps) {
               </div>
 
               {/* Tags */}
-              {((useSanity && post.tags?.length > 0) || (!useSanity && post.tags?.length > 0)) && (
+              {((useSanity && tagsWithCounts?.length > 0) || (!useSanity && post.tags?.length > 0)) && (
                 <div className="mb-8">
                   <h4 className="font-serif text-sm font-semibold mb-2 text-gray-800">Tags</h4>
                   <div className="flex flex-wrap gap-2">
                     {useSanity ? (
-                      post.tags.map((tag: any) => (
+                      tagsWithCounts.map((tag: any) => (
                         <Link
                           key={tag._id}
                           href={`/tags/${tag.slug.current}`}
                           className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors"
                         >
-                          {tag.name}
+                          {tag.name} <span className="text-gray-500 ml-1">{tag.postCount}</span>
                         </Link>
                       ))
                     ) : (

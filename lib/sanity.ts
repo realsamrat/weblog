@@ -360,3 +360,23 @@ export async function getPostsByTag(tagSlug: string) {
     return []
   }
 }
+
+export async function getTagsWithCounts(tagIds: string[]) {
+  try {
+    if (!tagIds || tagIds.length === 0) return []
+    
+    const tags = await client.fetch(
+      `*[_type == "tag" && _id in $tagIds] {
+        _id,
+        name,
+        slug,
+        "postCount": count(*[_type == "post" && status == "PUBLISHED" && references(^._id)])
+      }`,
+      { tagIds }
+    )
+    return tags
+  } catch (error) {
+    console.error('Error fetching tags with counts:', error)
+    return []
+  }
+}
