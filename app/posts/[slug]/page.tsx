@@ -5,6 +5,7 @@ import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
 import { portableTextToHtml } from "@/lib/sanity"
+import { getCategoryStyles } from "@/lib/utils"
 import Link from "next/link"
 // Remove lexicalToHTML import as it's not available in this version
 
@@ -75,12 +76,23 @@ export default async function BlogPost({ params }: PageProps) {
           <article className="flex-1 max-w-xl">
             <header className="mb-8">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-xs px-2 py-1 bg-teal-100 rounded text-teal-800">
-                  {useSanity 
-                    ? post.categories?.[0]?.name || 'General'
-                    : post.category?.name || 'General'
-                  }
-                </span>
+                {(() => {
+                  const category = useSanity 
+                    ? post.categories?.[0] 
+                    : post.category
+                  const categoryName = category?.name || 'General'
+                  const categoryColor = category?.color
+                  const styles = getCategoryStyles(categoryColor)
+                  
+                  return (
+                    <span 
+                      className="text-xs px-2 py-1 rounded"
+                      style={styles}
+                    >
+                      {categoryName}
+                    </span>
+                  )
+                })()}
                 <time className="text-xs text-gray-500">
                   {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
                     year: 'numeric',

@@ -50,8 +50,8 @@ export default async function Home() {
                 }
                 slug={featuredPost.slug.current || featuredPost.slug}
                 category={useSanity 
-                  ? featuredPost.categories?.[0]?.name || "General"
-                  : featuredPost.category?.name || "General"
+                  ? (featuredPost.categories?.[0] || { name: "General" })
+                  : (featuredPost.category || { name: "General" })
                 }
               />
             )}
@@ -69,8 +69,8 @@ export default async function Home() {
                   }
                   slug={post.slug.current || post.slug}
                   category={useSanity
-                    ? post.categories?.[0]?.name || "General"
-                    : post.category?.name || "General"
+                    ? (post.categories?.[0] || { name: "General" })
+                    : (post.category || { name: "General" })
                   }
                 />
               ))}

@@ -2,6 +2,7 @@ import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
 import { getPostsByTag, getAllSanityTags } from "@/lib/sanity"
 import { formatDistanceToNow } from "date-fns"
+import { getCategoryStyles } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -90,14 +91,18 @@ export default async function TagPage({ params }: TagPageProps) {
                   {/* Categories */}
                   {post.categories && post.categories.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {post.categories.map((category: any) => (
-                        <span
-                          key={category._id}
-                          className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded"
-                        >
-                          {category.name}
-                        </span>
-                      ))}
+                      {post.categories.map((category: any) => {
+                        const styles = getCategoryStyles(category.color)
+                        return (
+                          <span
+                            key={category._id}
+                            className="text-xs px-2 py-1 rounded"
+                            style={styles}
+                          >
+                            {category.name}
+                          </span>
+                        )
+                      })}
                     </div>
                   )}
                   
