@@ -12,7 +12,7 @@ interface TagPageProps {
 }
 
 export default async function TagPage({ params }: TagPageProps) {
-  const { slug } = params
+  const { slug } = await params
   
   const posts = await getPostsByTag(slug)
   
