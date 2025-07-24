@@ -5,6 +5,7 @@ import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
 import { portableTextToHtml } from "@/lib/sanity"
+import Link from "next/link"
 // Remove lexicalToHTML import as it's not available in this version
 
 interface PageProps {
@@ -106,12 +107,12 @@ export default async function BlogPost({ params }: PageProps) {
             />
 
             <div className="mt-12 pt-8 border-t border-gray-200">
-              <a
+              <Link
                 href="/"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors border-b border-gray-300 hover:border-gray-600"
               >
                 ← Back to all posts
-              </a>
+              </Link>
             </div>
           </article>
 
@@ -170,9 +171,9 @@ export default async function BlogPost({ params }: PageProps) {
                 {previousPost ? (
                   <p className="text-sm text-gray-600 mb-2">
                     <strong>Previous:</strong>{" "}
-                    <a href={`/posts/${previousPost.slug?.current || previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
+                    <Link href={`/posts/${previousPost.slug?.current || previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
                       {previousPost.title}
-                    </a>
+                    </Link>
                   </p>
                 ) : (
                   <p className="text-sm text-gray-600 mb-2">

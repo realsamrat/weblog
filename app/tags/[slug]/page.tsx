@@ -1,7 +1,6 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
 import { getPostsByTag, getAllSanityTags } from "@/lib/sanity"
-import { portableTextToHtml } from "@/lib/sanity"
 import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
 import Image from "next/image"
@@ -37,7 +36,7 @@ export default async function TagPage({ params }: TagPageProps) {
             </h1>
           </div>
           <p className="text-lg text-gray-600">
-            {posts.length} {posts.length === 1 ? 'post' : 'posts'} tagged with "{tagName}"
+            {posts.length} {posts.length === 1 ? 'post' : 'posts'} tagged with &ldquo;{tagName}&rdquo;
           </p>
         </div>
 
