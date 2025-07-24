@@ -76,9 +76,9 @@ export function generateRandomPastelColor(): string {
 export function getCategoryStyles(color?: string) {
   if (!color) {
     return {
-      backgroundColor: 'rgba(241, 245, 249, 0.7)', // slate-100 with 70% opacity
+      backgroundColor: 'rgba(241, 245, 249, 0.6)', // slate-100 with 60% opacity
       borderColor: '#f1f5f9', // slate-100 with 100% opacity
-      borderWidth: '1px',
+      borderWidth: '2px',
       borderStyle: 'solid',
       color: '#334155' // slate-700
     }
@@ -87,12 +87,12 @@ export function getCategoryStyles(color?: string) {
   const textColor = getContrastColor(color)
   
   const { r, g, b } = hexToRgb(color)
-  const backgroundColorWithOpacity = `rgba(${r}, ${g}, ${b}, 0.7)`
+  const backgroundColorWithOpacity = `rgba(${r}, ${g}, ${b}, 0.6)`
 
   return {
     backgroundColor: backgroundColorWithOpacity,
     borderColor: color, // 100% opacity border
-    borderWidth: '1px',
+    borderWidth: '2px',
     borderStyle: 'solid',
     color: textColor
   }
