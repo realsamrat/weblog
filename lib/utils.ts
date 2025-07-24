@@ -28,6 +28,32 @@ function getContrastColor(backgroundColor: string) {
   return luminance > 0.5 ? '#000000' : '#ffffff'
 }
 
+export function generatePastelColor(input: string): string {
+  let hash = 0
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32-bit integer
+  }
+  
+  const hue = Math.abs(hash) % 360
+  const saturation = 40 + (Math.abs(hash) % 20) // 40-60%
+  const lightness = 70 + (Math.abs(hash) % 15) // 70-85%
+  
+  const hslToHex = (h: number, s: number, l: number) => {
+    l /= 100
+    const a = s * Math.min(l, 1 - l) / 100
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
+      return Math.round(255 * color).toString(16).padStart(2, '0')
+    }
+    return `#${f(0)}${f(8)}${f(4)}`
+  }
+  
+  return hslToHex(hue, saturation, lightness)
+}
+
 export function getCategoryStyles(color?: string) {
   if (!color) {
     return {
