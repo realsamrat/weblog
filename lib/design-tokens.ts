@@ -101,8 +101,7 @@ export const spacing = {
 
 // Component-specific tokens
 export const components = {
-  // Keywords/Tags
-  keyword: {
+  tag: {
     base: 'text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer'
   },
   
@@ -252,7 +251,7 @@ export const transitions = {
 export const combineTokens = (...tokens: string[]) => tokens.join(' ')
 
 // Helper functions for common patterns
-export const getKeywordStyles = () => components.keyword.base
+export const getTagStyles = () => components.tag.base
 export const getCategoryStyles = (category: keyof typeof components.category.colors = 'default') => 
   combineTokens(components.category.base, components.category.colors[category])
 export const getAlertStyles = (variant: keyof typeof components.alert.variants = 'info') =>

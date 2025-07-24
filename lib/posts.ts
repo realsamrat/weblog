@@ -225,36 +225,6 @@ export async function getPopularPosts(limit = 7): Promise<PopularPostInfo[]> {
   return result
 }
 
-export async function getPopularKeywords(limit = 7): Promise<{ name: string; count: number }[]> {
-  const cacheKey = `popular-keywords-${limit}`
-  const cached = getCached<{ name: string; count: number }[]>(cacheKey)
-  if (cached) {
-    return cached
-  }
-
-  const tags = await prisma.tag.findMany({
-    include: {
-      posts: {
-        where: {
-          post: {
-            status: Status.PUBLISHED
-          }
-        }
-      }
-    }
-  })
-
-  const result = tags
-    .map((tag: any) => ({
-      name: tag.name,
-      count: tag.posts.length
-    }))
-    .sort((a: any, b: any) => b.count - a.count)
-    .slice(0, limit)
-
-  setCache(cacheKey, result)
-  return result
-}
 
 export async function createPost(data: {
   title: string

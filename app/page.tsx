@@ -1,20 +1,37 @@
 import Navigation from "@/components/navigation"
 import BlogPostCard from "@/components/blog-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
-import PopularKeywords from "@/components/popular-keywords"
+import PopularTags from "@/components/popular-tags"
 import PopularPostsList from "@/components/popular-posts-list"
-import { getAllPosts, getFeaturedPost, getPopularPosts, getPopularKeywords } from "@/lib/posts"
+import { getPublishedPosts, getFeaturedPosts, getAllSanityTags } from "@/lib/sanity"
+import { getAllPosts, getFeaturedPost, getPopularPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 
 export default async function Home() {
-  const allPublishedPosts = await getAllPosts({ status: Status.PUBLISHED })
-  const featuredPostData = await getFeaturedPost()
-  const otherPosts = featuredPostData
-    ? allPublishedPosts.filter((post) => post.slug !== featuredPostData.slug)
+  // Try Sanity first, fallback to Prisma
+  let allPublishedPosts = await getPublishedPosts(20)
+  let featuredPost = null
+  let useSanity = true
+  
+  if (allPublishedPosts.length === 0) {
+    // Fallback to Prisma
+    useSanity = false
+    const prismaData = await getAllPosts({ status: Status.PUBLISHED })
+    allPublishedPosts = prismaData
+    const featuredData = await getFeaturedPost()
+    featuredPost = featuredData
+  } else {
+    const featuredPosts = await getFeaturedPosts()
+    featuredPost = featuredPosts[0]
+  }
+  
+  const otherPosts = featuredPost
+    ? allPublishedPosts.filter((post: any) => post.slug !== featuredPost.slug)
     : allPublishedPosts
 
+  // For now, using existing data for popular posts and tags
   const popularPostsData = await getPopularPosts(7)
-  const popularKeywordsData = await getPopularKeywords(7)
+  const popularTagsData = await getAllSanityTags()
 
   return (
     <div className="min-h-screen">
@@ -23,26 +40,38 @@ export default async function Home() {
         <div className="flex flex-col md:flex-row gap-12">
           {/* Main content area */}
           <div className="w-full md:w-2/3">
-            {featuredPostData && (
+            {featuredPost && (
               <FeaturedPostCard
-                title={featuredPostData.title}
-                excerpt={featuredPostData.excerpt || ""}
-                date={featuredPostData.publishedAt?.toISOString().split('T')[0] || ""}
-                slug={featuredPostData.slug}
-                category={featuredPostData.category?.name || "General"}
+                title={featuredPost.title}
+                excerpt={featuredPost.excerpt || ""}
+                date={useSanity 
+                  ? new Date(featuredPost.publishedAt).toISOString().split('T')[0]
+                  : featuredPost.publishedAt?.toISOString().split('T')[0] || ""
+                }
+                slug={useSanity ? featuredPost.slug.current : featuredPost.slug}
+                category={useSanity
+                  ? featuredPost.categories?.[0]?.name || "General"
+                  : featuredPost.category?.name || "General"
+                }
               />
             )}
 
             <h2 className="font-serif text-2xl font-semibold mb-6 mt-10 pt-8 border-t border-gray-300">Recent Posts</h2>
             <div className="space-y-0">
-              {otherPosts.map((post) => (
+              {otherPosts.map((post: any) => (
                 <BlogPostCard
-                  key={post.slug}
+                  key={useSanity ? post.slug.current : post.slug}
                   title={post.title}
                   excerpt={post.excerpt || ""}
-                  date={post.publishedAt?.toISOString().split('T')[0] || ""}
-                  slug={post.slug}
-                  category={post.category?.name || "General"}
+                  date={useSanity
+                    ? new Date(post.publishedAt).toISOString().split('T')[0]
+                    : post.publishedAt?.toISOString().split('T')[0] || ""
+                  }
+                  slug={useSanity ? post.slug.current : post.slug}
+                  category={useSanity
+                    ? post.categories?.[0]?.name || "General"
+                    : post.category?.name || "General"
+                  }
                 />
               ))}
             </div>
@@ -50,7 +79,7 @@ export default async function Home() {
 
           {/* Sidebar */}
           <aside className="w-full md:w-1/3 md:sticky md:top-8 h-fit">
-            <PopularKeywords keywords={popularKeywordsData} />
+            <PopularTags tags={popularTagsData.slice(0, 7)} />
             <PopularPostsList posts={popularPostsData} />
           </aside>
         </div>
