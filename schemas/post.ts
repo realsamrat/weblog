@@ -145,10 +145,34 @@ export default defineType({
       validation: (Rule) => Rule.max(500),
     }),
     defineField({
-      name: 'imageUrl',
-      title: 'Featured Image URL',
-      type: 'url',
-      description: 'Featured image URL',
+      name: 'featuredImage',
+      title: 'Featured Image',
+      type: 'image',
+      description: 'Featured image for the post (supports both upload and URL)',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          description: 'Important for SEO and accessibility.',
+          validation: (Rule) => Rule.required(),
+        },
+        {
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+          description: 'Optional caption for the image.',
+        },
+        {
+          name: 'url',
+          type: 'url',
+          title: 'External Image URL',
+          description: 'Alternative: provide an external image URL instead of uploading',
+        },
+      ],
     }),
     defineField({
       name: 'status',

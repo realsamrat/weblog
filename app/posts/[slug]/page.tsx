@@ -1,6 +1,6 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
-import { getPostBySlug as getSanityPost, getPublishedPosts, getTagsWithCounts, getAllCategories } from "@/lib/sanity"
+import { getPostBySlug as getSanityPost, getPublishedPosts, getTagsWithCounts, getAllCategories, urlFor } from "@/lib/sanity"
 import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
@@ -119,18 +119,22 @@ export default async function BlogPost({ params }: PageProps) {
           </div>
 
           {/* Featured Image Section */}
-          {post.imageUrl ? (
+          {(post.featuredImage?.asset || post.featuredImage?.url || post.imageUrl) ? (
             <div className="relative mb-8">
               <div className="aspect-[16/9] sm:aspect-[3/2] lg:aspect-[16/9] overflow-hidden rounded-lg bg-gray-100 shadow-sm">
                 <img 
-                  src={post.imageUrl} 
-                  alt={post.title}
+                  src={
+                    post.featuredImage?.asset 
+                      ? urlFor(post.featuredImage.asset).url()
+                      : post.featuredImage?.url || post.imageUrl
+                  } 
+                  alt={post.featuredImage?.alt || post.title}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                   loading="eager"
                 />
               </div>
               <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 text-xs text-white bg-black bg-opacity-70 px-2 py-1 rounded backdrop-blur-sm">
-                <span className="font-mono">IMAGE CREDITS:</span> Stock Photo
+                <span className="font-mono">IMAGE CREDITS:</span> {post.featuredImage?.caption || 'Stock Photo'}
               </div>
             </div>
           ) : (

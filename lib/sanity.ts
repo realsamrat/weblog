@@ -131,7 +131,13 @@ export async function getPublishedPosts(limit?: number) {
         slug,
         excerpt,
         content,
-        imageUrl,
+        featuredImage {
+          asset,
+          alt,
+          caption,
+          url,
+          hotspot
+        },
         status,
         featured,
         publishedAt,
@@ -171,7 +177,13 @@ export async function getPostBySlug(slug: string) {
         slug,
         excerpt,
         content,
-        imageUrl,
+        featuredImage {
+          asset,
+          alt,
+          caption,
+          url,
+          hotspot
+        },
         status,
         featured,
         publishedAt,
@@ -212,7 +224,13 @@ export async function getFeaturedPosts() {
         slug,
         excerpt,
         content,
-        imageUrl,
+        featuredImage {
+          asset,
+          alt,
+          caption,
+          url,
+          hotspot
+        },
         status,
         featured,
         publishedAt,
@@ -252,7 +270,13 @@ export async function getPostsByCategory(categorySlug: string) {
         slug,
         excerpt,
         content,
-        imageUrl,
+        featuredImage {
+          asset,
+          alt,
+          caption,
+          url,
+          hotspot
+        },
         status,
         featured,
         publishedAt,
@@ -329,7 +353,13 @@ export async function getPostsByTag(tagSlug: string) {
         slug,
         excerpt,
         content,
-        imageUrl,
+        featuredImage {
+          asset,
+          alt,
+          caption,
+          url,
+          hotspot
+        },
         status,
         featured,
         publishedAt,
