@@ -57,7 +57,7 @@ export function generatePastelColor(input: string): string {
 export function generateRandomPastelColor(): string {
   const hue = Math.floor(Math.random() * 360)
   const saturation = 40 + Math.floor(Math.random() * 20) // 40-60%
-  const lightness = 80 + Math.floor(Math.random() * 15) // 80-95%
+  const lightness = 70 + Math.floor(Math.random() * 15) // 70-85%
   
   const hslToHex = (h: number, s: number, l: number) => {
     l /= 100
@@ -76,15 +76,24 @@ export function generateRandomPastelColor(): string {
 export function getCategoryStyles(color?: string) {
   if (!color) {
     return {
-      backgroundColor: '#f1f5f9', // slate-100
+      backgroundColor: 'rgba(241, 245, 249, 0.7)', // slate-100 with 70% opacity
+      borderColor: '#f1f5f9', // slate-100 with 100% opacity
+      borderWidth: '1px',
+      borderStyle: 'solid',
       color: '#334155' // slate-700
     }
   }
 
   const textColor = getContrastColor(color)
+  
+  const { r, g, b } = hexToRgb(color)
+  const backgroundColorWithOpacity = `rgba(${r}, ${g}, ${b}, 0.7)`
 
   return {
-    backgroundColor: color,
+    backgroundColor: backgroundColorWithOpacity,
+    borderColor: color, // 100% opacity border
+    borderWidth: '1px',
+    borderStyle: 'solid',
     color: textColor
   }
 }
