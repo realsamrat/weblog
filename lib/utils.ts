@@ -21,7 +21,7 @@ function getLuminance(r: number, g: number, b: number) {
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
 }
 
-function getContrastColor(backgroundColor: string) {
+export function getContrastColor(backgroundColor: string) {
   const { r, g, b } = hexToRgb(backgroundColor)
   const luminance = getLuminance(r, g, b)
   
@@ -39,6 +39,25 @@ export function generatePastelColor(input: string): string {
   const hue = Math.abs(hash) % 360
   const saturation = 40 + (Math.abs(hash) % 20) // 40-60%
   const lightness = 70 + (Math.abs(hash) % 15) // 70-85%
+  
+  const hslToHex = (h: number, s: number, l: number) => {
+    l /= 100
+    const a = s * Math.min(l, 1 - l) / 100
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
+      return Math.round(255 * color).toString(16).padStart(2, '0')
+    }
+    return `#${f(0)}${f(8)}${f(4)}`
+  }
+  
+  return hslToHex(hue, saturation, lightness)
+}
+
+export function generateRandomPastelColor(): string {
+  const hue = Math.floor(Math.random() * 360)
+  const saturation = 40 + Math.floor(Math.random() * 20) // 40-60%
+  const lightness = 70 + Math.floor(Math.random() * 15) // 70-85%
   
   const hslToHex = (h: number, s: number, l: number) => {
     l /= 100

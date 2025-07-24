@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity'
-import { generatePastelColor } from '../lib/utils'
+import { generateRandomPastelColor } from '../lib/utils'
+import { ColorInput } from '../components/sanity/ColorInput'
 
 export default defineType({
   name: 'tag',
@@ -26,9 +27,10 @@ export default defineType({
       name: 'color',
       title: 'Color',
       type: 'string',
-      description: 'Auto-generated pastel color for the tag',
-      initialValue: (doc, context) => {
-        return doc?.name ? generatePastelColor(doc.name) : '#E5E7EB'
+      description: 'Pastel color for the tag (click randomize to generate new color)',
+      initialValue: () => generateRandomPastelColor(),
+      components: {
+        input: ColorInput,
       },
       validation: (Rule) => Rule.regex(/^#[0-9A-Fa-f]{6}$/).error('Must be a valid hex color'),
     }),
