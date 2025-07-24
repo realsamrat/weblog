@@ -54,7 +54,7 @@ export function SocialShare({ url, title, className = '' }: SocialShareProps) {
         variant="ghost"
         size="sm"
         onClick={() => handleShare('facebook')}
-        className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+        className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-blue-400"
         aria-label="Share on Facebook"
       >
         <Facebook className="h-4 w-4" />
@@ -64,7 +64,7 @@ export function SocialShare({ url, title, className = '' }: SocialShareProps) {
         variant="ghost"
         size="sm"
         onClick={() => handleShare('twitter')}
-        className="h-8 w-8 p-0 hover:bg-gray-50 hover:text-gray-900"
+        className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
         aria-label="Share on X (Twitter)"
       >
         <Twitter className="h-4 w-4" />
@@ -74,7 +74,7 @@ export function SocialShare({ url, title, className = '' }: SocialShareProps) {
         variant="ghost"
         size="sm"
         onClick={() => handleShare('linkedin')}
-        className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-700"
+        className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-blue-400"
         aria-label="Share on LinkedIn"
       >
         <Linkedin className="h-4 w-4" />
@@ -84,7 +84,7 @@ export function SocialShare({ url, title, className = '' }: SocialShareProps) {
         variant="ghost"
         size="sm"
         onClick={() => handleShare('reddit')}
-        className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600"
+        className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-orange-400"
         aria-label="Share on Reddit"
       >
         <MessageSquare className="h-4 w-4" />
@@ -94,7 +94,7 @@ export function SocialShare({ url, title, className = '' }: SocialShareProps) {
         variant="ghost"
         size="sm"
         onClick={() => handleShare('email')}
-        className="h-8 w-8 p-0 hover:bg-gray-50 hover:text-gray-700"
+        className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
         aria-label="Share via Email"
       >
         <Mail className="h-4 w-4" />
@@ -106,8 +106,8 @@ export function SocialShare({ url, title, className = '' }: SocialShareProps) {
         onClick={handleCopyLink}
         className={`h-8 w-8 p-0 transition-colors ${
           copied 
-            ? 'bg-green-50 text-green-600' 
-            : 'hover:bg-gray-50 hover:text-gray-700'
+            ? 'bg-green-500/20 text-green-400' 
+            : 'text-white hover:bg-white/10 hover:text-white'
         }`}
         aria-label="Copy link"
       >
