@@ -188,7 +188,7 @@ export default async function BlogPost({ params }: PageProps) {
                         day: 'numeric'
                       });
                       // IST timezone
-                      return `${timeStr} IST · ${dateStr}`;
+                      return `${timeStr} IST • ${dateStr}`;
                     })()}
                   </time>
                 </div>
