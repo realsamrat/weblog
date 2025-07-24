@@ -1,10 +1,11 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
 import { getPostBySlug as getSanityPost, getPublishedPosts } from "@/lib/sanity"
-import { getPostBySlug as getPrismaPost, getAllPosts, type Post } from "@/lib/posts"
+import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
 import { portableTextToHtml } from "@/lib/sanity"
+import Link from "next/link"
 // Remove lexicalToHTML import as it's not available in this version
 
 interface PageProps {
@@ -20,6 +21,7 @@ export default async function BlogPost({ params }: PageProps) {
   let post = await getSanityPost(slug)
   let useSanity = true
   let allPosts: any[] = []
+  
   
   if (!post) {
     // Fallback to Prisma
@@ -105,12 +107,12 @@ export default async function BlogPost({ params }: PageProps) {
             />
 
             <div className="mt-12 pt-8 border-t border-gray-200">
-              <a
+              <Link
                 href="/"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors border-b border-gray-300 hover:border-gray-600"
               >
                 ← Back to all posts
-              </a>
+              </Link>
             </div>
           </article>
 
@@ -134,29 +136,30 @@ export default async function BlogPost({ params }: PageProps) {
                 </p>
               </div>
 
-              {/* Keywords */}
+              {/* Tags */}
               {((useSanity && post.tags?.length > 0) || (!useSanity && post.tags?.length > 0)) && (
                 <div className="mb-8">
+                  <h4 className="font-serif text-sm font-semibold mb-2 text-gray-800">Tags</h4>
                   <div className="flex flex-wrap gap-2">
                     {useSanity ? (
                       post.tags.map((tag: any) => (
-                        <span
-                          key={tag.id}
-                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer"
+                        <Link
+                          key={tag._id}
+                          href={`/tags/${tag.slug.current}`}
+                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors"
                         >
                           {tag.name}
-                          <span className="ml-1 text-gray-500">{Math.floor(Math.random() * 1000) + 100}</span>
-                        </span>
+                        </Link>
                       ))
                     ) : (
                       post.tags.map((postTag: any) => (
-                        <span
+                        <Link
                           key={postTag.tag.id}
-                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors cursor-pointer"
+                          href={`/tags/${postTag.tag.slug}`}
+                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors"
                         >
                           {postTag.tag.name}
-                          <span className="ml-1 text-gray-500">{Math.floor(Math.random() * 1000) + 100}</span>
-                        </span>
+                        </Link>
                       ))
                     )}
                   </div>
@@ -168,9 +171,9 @@ export default async function BlogPost({ params }: PageProps) {
                 {previousPost ? (
                   <p className="text-sm text-gray-600 mb-2">
                     <strong>Previous:</strong>{" "}
-                    <a href={`/posts/${previousPost.slug?.current || previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
+                    <Link href={`/posts/${previousPost.slug?.current || previousPost.slug}`} className="text-blue-600 hover:text-blue-800 underline">
                       {previousPost.title}
-                    </a>
+                    </Link>
                   </p>
                 ) : (
                   <p className="text-sm text-gray-600 mb-2">

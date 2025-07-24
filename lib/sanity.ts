@@ -302,43 +302,61 @@ export async function getAllCategories() {
   }
 }
 
-export function extractKeywordsFromContent(content: any[]): string[] {
-  if (!content || !Array.isArray(content)) {
+
+export async function getAllSanityTags() {
+  try {
+    const tags = await client.fetch(
+      `*[_type == "tag"] | order(name asc) {
+        _id,
+        name,
+        slug,
+        "postCount": count(*[_type == "post" && status == "PUBLISHED" && references(^._id)])
+      }`
+    )
+    return tags
+  } catch (error) {
+    console.error('Error fetching Sanity tags:', error)
     return []
   }
-  
-  const text = getPlainTextFromPortableText(content)
-  const words = text.toLowerCase()
-    .replace(/[^\w\s]/g, ' ')
-    .split(/\s+/)
-    .filter(word => word.length > 3)
-  
-  const wordCount: Record<string, number> = {}
-  words.forEach(word => {
-    wordCount[word] = (wordCount[word] || 0) + 1
-  })
-  
-  const keywords = Object.entries(wordCount)
-    .filter(([word, count]) => count > 1)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
-    .map(([word]) => word)
-  
-  return keywords
 }
 
-export async function updatePostKeywords(postId: string) {
+export async function getPostsByTag(tagSlug: string) {
   try {
-    const post = await client.fetch(
-      `*[_type == "post" && _id == $postId][0] { content }`,
-      { postId }
+    const posts = await client.fetch(
+      `*[_type == "post" && status == "PUBLISHED" && $tagSlug in tags[]->slug.current] | order(publishedAt desc) {
+        _id,
+        title,
+        slug,
+        excerpt,
+        content,
+        imageUrl,
+        status,
+        featured,
+        publishedAt,
+        author->{
+          _id,
+          name,
+          bio,
+          avatar
+        },
+        categories[]->{
+          _id,
+          name,
+          slug,
+          description,
+          color
+        },
+        tags[]->{
+          _id,
+          name,
+          slug
+        }
+      }`,
+      { tagSlug }
     )
-    
-    if (post && post.content) {
-      const keywords = extractKeywordsFromContent(post.content)
-      await client.patch(postId).set({ keywords }).commit()
-    }
+    return posts
   } catch (error) {
-    console.error('Error updating keywords:', error)
+    console.error('Error fetching posts by tag:', error)
+    return []
   }
 }
