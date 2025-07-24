@@ -106,7 +106,7 @@ export default async function BlogPost({ params }: PageProps) {
                     </span>
                   )
                 })()}
-                <time className="text-xs text-gray-500">
+                <time className="text-xs text-gray-500 font-mono">
                   {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',

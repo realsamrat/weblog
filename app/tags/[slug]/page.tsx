@@ -75,7 +75,7 @@ export default async function TagPage({ params }: TagPageProps) {
                       <span>By {post.author.name}</span>
                     )}
                     {post.publishedAt && (
-                      <span>
+                      <span className="font-mono">
                         {formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true })}
                       </span>
                     )}
