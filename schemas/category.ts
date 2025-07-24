@@ -1,4 +1,6 @@
 import { defineField, defineType } from 'sanity'
+import { generateRandomPastelColor } from '../lib/utils'
+import { ColorInput } from '../components/sanity/ColorInput'
 
 export default defineType({
   name: 'category',
@@ -31,8 +33,12 @@ export default defineType({
       name: 'color',
       title: 'Color',
       type: 'string',
-      description: 'Hex color code for the category',
-      initialValue: '#6B7280',
+      description: 'Pastel color for the category (click randomize to generate new color)',
+      initialValue: () => generateRandomPastelColor(),
+      components: {
+        input: ColorInput,
+      },
+      validation: (Rule) => Rule.regex(/^#[0-9A-Fa-f]{6}$/).error('Must be a valid hex color'),
     }),
   ],
   preview: {
