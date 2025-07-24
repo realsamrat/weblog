@@ -21,7 +21,7 @@ export default function NewPostLoading() {
                 </div>
               </div>
 
-              {/* Keywords field */}
+              {/* Tags field */}
               <div className="space-y-2">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-10 w-full" />
