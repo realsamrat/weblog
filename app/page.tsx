@@ -3,15 +3,17 @@ import BlogPostCard from "@/components/blog-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
 import PopularTags from "@/components/popular-tags"
 import PopularPostsList from "@/components/popular-posts-list"
-import { getPublishedPosts, getFeaturedPosts, getAllSanityTags } from "@/lib/sanity"
+import { getPublishedPosts, getFeaturedPosts, getAllSanityTags, getAllCategories } from "@/lib/sanity"
 import { getAllPosts, getFeaturedPost, getPopularPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 
 export default async function Home() {
   // Try Sanity first, fallback to Prisma
   let allPublishedPosts = await getPublishedPosts(20)
-  let featuredPost = null
+  let featuredPost: any = null
   let useSanity = true
+  
+  const sanityCategories = await getAllCategories()
   
   if (allPublishedPosts.length === 0) {
     // Fallback to Prisma
@@ -20,6 +22,33 @@ export default async function Home() {
     allPublishedPosts = prismaData
     const featuredData = await getFeaturedPost()
     featuredPost = featuredData
+    
+    if (featuredPost && featuredPost.category) {
+      const sanityCategory = sanityCategories.find((cat: any) => 
+        cat.slug.current === featuredPost.category.slug || cat.name === featuredPost.category.name
+      )
+      if (sanityCategory) {
+        featuredPost.category = {
+          ...featuredPost.category,
+          color: sanityCategory.color
+        }
+      }
+    }
+    
+    allPublishedPosts = allPublishedPosts.map((post: any) => {
+      if (post.category) {
+        const sanityCategory = sanityCategories.find((cat: any) => 
+          cat.slug.current === post.category.slug || cat.name === post.category.name
+        )
+        if (sanityCategory) {
+          post.category = {
+            ...post.category,
+            color: sanityCategory.color
+          }
+        }
+      }
+      return post
+    })
   } else {
     const featuredPosts = await getFeaturedPosts()
     featuredPost = featuredPosts[0]

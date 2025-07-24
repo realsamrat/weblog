@@ -351,11 +351,13 @@ export async function deletePost(id: number) {
 }
 
 // Category functions
-export async function getAllCategories(): Promise<Category[]> {
-  const cacheKey = 'all-categories'
-  const cached = getCachedStatic<Category[]>(cacheKey)
-  if (cached) {
-    return cached
+export async function getAllCategories(bypassCache = false): Promise<Category[]> {
+  if (!bypassCache) {
+    const cacheKey = 'all-categories'
+    const cached = getCachedStatic<Category[]>(cacheKey)
+    if (cached) {
+      return cached
+    }
   }
 
   const categories = await prisma.category.findMany({
@@ -364,7 +366,9 @@ export async function getAllCategories(): Promise<Category[]> {
     }
   })
 
-  setCache(cacheKey, categories)
+  if (!bypassCache) {
+    setCache('all-categories', categories)
+  }
   return categories
 }
 

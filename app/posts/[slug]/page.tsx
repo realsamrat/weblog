@@ -1,6 +1,6 @@
 import Navigation from "@/components/navigation"
 import { notFound } from "next/navigation"
-import { getPostBySlug as getSanityPost, getPublishedPosts, getTagsWithCounts } from "@/lib/sanity"
+import { getPostBySlug as getSanityPost, getPublishedPosts, getTagsWithCounts, getAllCategories } from "@/lib/sanity"
 import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
@@ -24,6 +24,7 @@ export default async function BlogPost({ params }: PageProps) {
   let allPosts: any[] = []
   let tagsWithCounts: any[] = []
   
+  const sanityCategories = await getAllCategories()
 
   if (!post) {
     // Fallback to Prisma
@@ -37,6 +38,18 @@ export default async function BlogPost({ params }: PageProps) {
       status: Status.PUBLISHED,
       includeRelations: false
     })
+    
+    if (post.category) {
+      const sanityCategory = sanityCategories.find((cat: any) => 
+        cat.slug.current === post.category.slug || cat.name === post.category.name
+      )
+      if (sanityCategory) {
+        post.category = {
+          ...post.category,
+          color: sanityCategory.color
+        }
+      }
+    }
   } else {
     allPosts = await getPublishedPosts(100)
     if (post.tags && post.tags.length > 0) {

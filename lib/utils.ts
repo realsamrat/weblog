@@ -88,3 +88,20 @@ export function getCategoryStyles(color?: string) {
     color: textColor
   }
 }
+
+export function enrichPostsWithSanityCategories(posts: any[], sanityCategories: any[]) {
+  return posts.map(post => {
+    if (post.category) {
+      const sanityCategory = sanityCategories.find((cat: any) => 
+        cat.slug.current === post.category.slug || cat.name === post.category.name
+      )
+      if (sanityCategory) {
+        post.category = {
+          ...post.category,
+          color: sanityCategory.color
+        }
+      }
+    }
+    return post
+  })
+}
