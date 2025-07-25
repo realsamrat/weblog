@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { getCategoryStyles } from "@/lib/utils"
+import CategoryBadge from "./category-badge"
 
 interface FeaturedPostCardProps {
   title: string
@@ -17,12 +17,9 @@ interface FeaturedPostCardProps {
 }
 
 export default function FeaturedPostCard({ title, excerpt, date, slug, category, imageUrl, pullUp = false }: FeaturedPostCardProps) {
-  const categoryName = typeof category === 'string' ? category : category.name
-  const categoryColor = typeof category === 'string' ? undefined : category.color
-  const styles = getCategoryStyles(categoryColor)
 
   return (
-    <article className={`w-full bg-black text-white blur-element ${pullUp ? '-mt-[60px] pt-[120px] pb-16' : 'pt-[76px] pb-16'}`}>
+    <article className={`w-full bg-black dark:bg-[#0A0B0D] text-white blur-element border-b border-gray-800 dark:border-gray-900 ${pullUp ? '-mt-[60px] pt-[120px] pb-16' : 'pt-[76px] pb-16'}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
           {/* Image Section */}
@@ -48,12 +45,7 @@ export default function FeaturedPostCard({ title, excerpt, date, slug, category,
                 <span className="w-px h-3.5 bg-white/40"></span>
                 Featured
               </span>
-              <span 
-                className="text-xs px-2 py-0.5 rounded font-mono uppercase font-bold"
-                style={getCategoryStyles(categoryColor, true)}
-              >
-                {categoryName}
-              </span>
+              <CategoryBadge category={category} darkBackground={true} />
               <time className="text-base text-gray-400 font-mono">{date}</time>
             </div>
             <h2 className="font-sf-pro-display text-4xl lg:text-5xl font-bold mb-4 leading-tight">

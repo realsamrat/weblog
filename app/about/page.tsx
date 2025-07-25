@@ -4,9 +4,9 @@ import Link from "next/link"
 export default function About() {
   return (
     <PageWrapper>
-      <div className="min-h-[calc(100vh-60px-88px)] py-4">
+      <div className="min-h-[calc(100vh-60px-88px)] py-4 bg-black -mt-[60px] pt-[60px]">
         <div className="max-w-4xl mx-auto px-8">
-          <div className="bg-[#f7f7f8] p-16 relative overflow-hidden">
+          <div className="bg-[#f7f7f8] p-8 sm:p-12 md:p-16 relative overflow-hidden">
             {/* Background SVG */}
             <img 
               src="/icons/nerds_fs.svg" 
@@ -42,7 +42,9 @@ export default function About() {
 
             {/* Heading */}
             <h1 className="font-mono text-4xl font-medium tracking-[-0.08em] mb-2">How we started</h1>
-            <div className="w-full h-[3px] bg-[#d61f1f] mb-12"></div>
+            <div className="relative h-[3px] mb-12">
+              <div className="absolute left-0 -right-8 sm:-right-12 md:-right-16 h-full bg-[#d61f1f]"></div>
+            </div>
 
             {/* Content */}
             <div className="space-y-6 text-[17px] leading-[1.7] text-gray-800 font-mono tracking-[-0.05em] relative z-10">

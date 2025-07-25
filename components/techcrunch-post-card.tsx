@@ -1,8 +1,8 @@
 'use client'
 
 import Link from "next/link"
-import { getCategoryStyles } from "@/lib/utils"
 import { motion } from "framer-motion"
+import CategoryBadge from "./category-badge"
 
 interface TechCrunchPostCardProps {
   title: string
@@ -46,13 +46,8 @@ export default function TechCrunchPostCard({
   author,
   imageUrl 
 }: TechCrunchPostCardProps) {
-  const categoryName = typeof category === 'string' ? category : category.name
-  const categoryColor = typeof category === 'string' ? undefined : category.color
   const authorName = typeof author === 'string' ? author : author?.name || 'Staff'
   const relativeTime = getRelativeTime(date)
-  
-  // Get category styles
-  const styles = getCategoryStyles(categoryColor)
 
   return (
     <motion.article 
@@ -71,7 +66,7 @@ export default function TechCrunchPostCard({
               className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
+            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800" />
           )}
         </div>
         
@@ -79,24 +74,19 @@ export default function TechCrunchPostCard({
         <div className="flex-1 flex flex-col justify-center py-2">
           {/* Category */}
           <div className="mb-2">
-            <span 
-              className="inline-block text-[11px] px-2 py-0.5 rounded font-mono uppercase font-bold tracking-wider"
-              style={styles}
-            >
-              {categoryName}
-            </span>
+            <CategoryBadge category={category} className="text-[11px] tracking-wider" />
           </div>
           
           {/* Title */}
-          <h2 className="font-sf-pro-display text-[18px] sm:text-[20px] md:text-[22px] font-bold leading-[1.2] mb-2 text-black group-hover:underline underline-offset-2 transition-colors">
+          <h2 className="font-sf-pro-display text-[18px] sm:text-[20px] md:text-[22px] font-bold leading-[1.2] mb-2 text-black dark:text-white group-hover:underline underline-offset-2 transition-colors">
             {title}
           </h2>
           
           {/* Author and Time */}
-          <div className="flex items-center text-[13px] text-gray-600">
-            <span className="font-medium text-gray-900">{authorName}</span>
-            <span className="mx-1.5 text-gray-400">-</span>
-            <time className="text-gray-500">{relativeTime}</time>
+          <div className="flex items-center text-[13px] text-gray-600 dark:text-gray-400">
+            <span className="font-medium text-gray-900 dark:text-gray-100">{authorName}</span>
+            <span className="mx-1.5 text-gray-400 dark:text-gray-600">-</span>
+            <time className="text-gray-500 dark:text-gray-400">{relativeTime}</time>
           </div>
         </div>
       </Link>

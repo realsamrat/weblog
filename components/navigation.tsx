@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect } from "react"
+import { ThemeToggle } from "./theme-toggle"
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -87,23 +88,25 @@ export default function Navigation() {
             </svg>
           </Link>
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
+            <div className="w-px h-6 bg-gray-700" />
             <Link 
               href="/" 
-              className="nav-item relative text-lg font-sf-pro-display font-medium hover:text-[#d61f1f] transition-colors group"
+              className="nav-item relative text-lg font-sf-pro-display font-medium text-white hover:text-[#d61f1f] transition-colors group"
             >
               Posts
               <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#d61f1f] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
             </Link>
             <Link 
               href="/about" 
-              className="nav-item relative text-lg font-sf-pro-display font-medium hover:text-[#d61f1f] transition-colors group"
+              className="nav-item relative text-lg font-sf-pro-display font-medium text-white hover:text-[#d61f1f] transition-colors group"
             >
               About
               <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#d61f1f] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
             </Link>
             <button 
-              className="bg-[#d61f1f] text-white px-4 py-2 rounded font-mono font-bold text-sm uppercase tracking-wide hover:bg-[#b51a1a] transition-colors"
+              className="bg-[#d61f1f] text-white px-4 py-2 rounded font-mono font-bold text-sm uppercase tracking-wide hover:bg-[#b51a1a] transition-colors ml-4"
               onMouseEnter={() => setIsSubscribeHovered(true)}
               onMouseLeave={() => setIsSubscribeHovered(false)}
             >
@@ -207,6 +210,11 @@ export default function Navigation() {
                 </button>
               </div>
 
+              {/* Theme Toggle - Top Right */}
+              <div className="absolute top-3 right-16 md:hidden">
+                <ThemeToggle />
+              </div>
+
               {/* Menu Items - Centered */}
               <motion.div 
                 className="flex-1 flex flex-col justify-center items-center px-8"
@@ -249,7 +257,7 @@ export default function Navigation() {
                   >
                     <Link 
                       href="/" 
-                      className="text-3xl font-sf-pro-display font-medium hover:text-[#d61f1f] transition-colors"
+                      className="text-3xl font-sf-pro-display font-medium text-white hover:text-[#d61f1f] transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Posts
@@ -270,7 +278,7 @@ export default function Navigation() {
                   >
                     <Link 
                       href="/about" 
-                      className="text-3xl font-sf-pro-display font-medium hover:text-[#d61f1f] transition-colors"
+                      className="text-3xl font-sf-pro-display font-medium text-white hover:text-[#d61f1f] transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       About

@@ -4,7 +4,6 @@ import TechCrunchPostCard from "@/components/techcrunch-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
 import PopularTags from "@/components/popular-tags"
 import PopularPostsList from "@/components/popular-posts-list"
-import StaggerList from "@/components/motion/stagger-list"
 import { getPublishedPosts, getFeaturedPosts, getAllSanityTags, getAllCategories, urlFor } from "@/lib/sanity"
 import { getAllPosts, getFeaturedPost, getPopularPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
@@ -97,7 +96,7 @@ export default async function Home() {
           <div className="flex-1">
 
             <h2 className="font-sf-pro-display text-4xl font-bold mb-6">Recent Posts</h2>
-            <StaggerList className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 dark:divide-gray-800">
               {otherPosts.map((post: any) => (
                 <TechCrunchPostCard
                   key={post.slug.current || post.slug}
@@ -121,7 +120,7 @@ export default async function Home() {
                   }
                 />
               ))}
-            </StaggerList>
+            </div>
           </div>
 
           {/* Sidebar */}
