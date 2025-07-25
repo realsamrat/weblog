@@ -13,15 +13,16 @@ interface FeaturedPostCardProps {
     color?: string
   } | string
   imageUrl?: string
+  pullUp?: boolean
 }
 
-export default function FeaturedPostCard({ title, excerpt, date, slug, category, imageUrl }: FeaturedPostCardProps) {
+export default function FeaturedPostCard({ title, excerpt, date, slug, category, imageUrl, pullUp = false }: FeaturedPostCardProps) {
   const categoryName = typeof category === 'string' ? category : category.name
   const categoryColor = typeof category === 'string' ? undefined : category.color
   const styles = getCategoryStyles(categoryColor)
 
   return (
-    <article className="w-full bg-black text-white py-16 -mt-[60px] pt-[60px] blur-element">
+    <article className={`w-full bg-black text-white blur-element ${pullUp ? '-mt-[60px] pt-[120px] pb-16' : 'pt-[76px] pb-16'}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
           {/* Image Section */}
@@ -53,7 +54,7 @@ export default function FeaturedPostCard({ title, excerpt, date, slug, category,
               >
                 {categoryName}
               </span>
-              <time className="text-xs text-gray-400 font-mono">{date}</time>
+              <time className="text-base text-gray-400 font-mono">{date}</time>
             </div>
             <h2 className="font-sf-pro-display text-4xl lg:text-5xl font-bold mb-4 leading-tight">
               <Link href={`/posts/${slug}`} className="hover:text-gray-300 transition-colors">

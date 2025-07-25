@@ -61,9 +61,9 @@ export default function TechCrunchPostCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <Link href={`/posts/${slug}`} className="flex gap-6 group">
+      <Link href={`/posts/${slug}`} className="flex gap-4 sm:gap-5 md:gap-6 group">
         {/* Thumbnail Image */}
-        <div className="flex-shrink-0 w-[200px] h-[135px] overflow-hidden rounded-lg">
+        <div className="flex-shrink-0 w-[120px] sm:w-[160px] md:w-[200px] h-[80px] sm:h-[107px] md:h-[135px] overflow-hidden rounded-md my-2 sm:my-0">
           {imageUrl ? (
             <img 
               src={imageUrl} 
@@ -88,7 +88,7 @@ export default function TechCrunchPostCard({
           </div>
           
           {/* Title */}
-          <h2 className="font-sf-pro-display text-[22px] font-bold leading-[1.2] mb-2 text-black group-hover:underline underline-offset-2 transition-colors">
+          <h2 className="font-sf-pro-display text-[18px] sm:text-[20px] md:text-[22px] font-bold leading-[1.2] mb-2 text-black group-hover:underline underline-offset-2 transition-colors">
             {title}
           </h2>
           

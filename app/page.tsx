@@ -65,7 +65,7 @@ export default async function Home() {
   const popularTagsData = await getAllSanityTags()
 
   return (
-    <PageWrapper>
+    <PageWrapper noPadding>
       <div className="min-h-screen flex flex-col">
       
       {/* Full-width Featured Post Section */}
@@ -86,9 +86,10 @@ export default async function Home() {
             ? urlFor(featuredPost.featuredImage.asset).width(800).height(500).url()
             : featuredPost.featuredImage?.url || featuredPost.imageUrl
           }
+          pullUp={true}
         />
       ) : (
-        <div className="w-full bg-black h-20 -mt-[60px] blur-element"></div>
+        <div className="w-full bg-black h-[140px] blur-element -mt-[60px] pt-[60px]"></div>
       )}
       
       <main className="max-w-6xl mx-auto px-4 pt-6 flex-grow blur-element">

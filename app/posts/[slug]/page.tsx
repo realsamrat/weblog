@@ -85,7 +85,7 @@ export default async function BlogPost({ params }: PageProps) {
   }
 
   return (
-    <PageWrapper>
+    <PageWrapper noPadding>
       <div className="min-h-screen flex flex-col">
       
       {/* Full-width Hero Header */}
