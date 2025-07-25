@@ -1,9 +1,11 @@
-import Navigation from "@/components/navigation"
+import PageWrapper from "@/components/page-wrapper"
 import BlogPostCard from "@/components/blog-post-card"
+import TechCrunchPostCard from "@/components/techcrunch-post-card"
 import FeaturedPostCard from "@/components/featured-post-card"
 import PopularTags from "@/components/popular-tags"
 import PopularPostsList from "@/components/popular-posts-list"
-import { getPublishedPosts, getFeaturedPosts, getAllSanityTags, getAllCategories } from "@/lib/sanity"
+import StaggerList from "@/components/motion/stagger-list"
+import { getPublishedPosts, getFeaturedPosts, getAllSanityTags, getAllCategories, urlFor } from "@/lib/sanity"
 import { getAllPosts, getFeaturedPost, getPopularPosts } from "@/lib/posts"
 import { Status } from "@prisma/client"
 
@@ -63,47 +65,63 @@ export default async function Home() {
   const popularTagsData = await getAllSanityTags()
 
   return (
-    <div className="min-h-screen">
-      <Navigation />
-      <main className="max-w-6xl mx-auto px-4 pt-6">
+    <PageWrapper>
+      <div className="min-h-screen flex flex-col">
+      
+      {/* Full-width Featured Post Section */}
+      {featuredPost ? (
+        <FeaturedPostCard
+          title={featuredPost.title}
+          excerpt={featuredPost.excerpt || ""}
+          date={useSanity 
+            ? new Date(featuredPost.publishedAt).toISOString().split('T')[0]
+            : featuredPost.publishedAt?.toISOString().split('T')[0] || ""
+          }
+          slug={featuredPost.slug.current || featuredPost.slug}
+          category={useSanity 
+            ? (featuredPost.categories?.[0] || { name: "General" })
+            : (featuredPost.category || { name: "General" })
+          }
+          imageUrl={useSanity && featuredPost.featuredImage?.asset
+            ? urlFor(featuredPost.featuredImage.asset).width(800).height(500).url()
+            : featuredPost.featuredImage?.url || featuredPost.imageUrl
+          }
+        />
+      ) : (
+        <div className="w-full bg-black h-20 -mt-[60px] blur-element"></div>
+      )}
+      
+      <main className="max-w-6xl mx-auto px-4 pt-6 flex-grow blur-element">
         <div className="flex flex-col md:flex-row gap-12">
           {/* Main content area */}
           <div className="flex-1">
-            {featuredPost && (
-              <FeaturedPostCard
-                title={featuredPost.title}
-                excerpt={featuredPost.excerpt || ""}
-                date={useSanity 
-                  ? new Date(featuredPost.publishedAt).toISOString().split('T')[0]
-                  : featuredPost.publishedAt?.toISOString().split('T')[0] || ""
-                }
-                slug={featuredPost.slug.current || featuredPost.slug}
-                category={useSanity 
-                  ? (featuredPost.categories?.[0] || { name: "General" })
-                  : (featuredPost.category || { name: "General" })
-                }
-              />
-            )}
 
-            <h2 className="font-sf-pro-display text-3xl font-bold mb-6 mt-10 pt-8 border-t border-gray-300">Recent Posts</h2>
-            <div className="space-y-0">
+            <h2 className="font-sf-pro-display text-4xl font-bold mb-6">Recent Posts</h2>
+            <StaggerList className="divide-y divide-gray-200">
               {otherPosts.map((post: any) => (
-                <BlogPostCard
+                <TechCrunchPostCard
                   key={post.slug.current || post.slug}
                   title={post.title}
-                  excerpt={post.excerpt || ""}
                   date={useSanity
-                    ? new Date(post.publishedAt).toISOString().split('T')[0]
-                    : post.publishedAt?.toISOString().split('T')[0] || ""
+                    ? post.publishedAt
+                    : post.publishedAt?.toISOString() || new Date().toISOString()
                   }
                   slug={post.slug.current || post.slug}
                   category={useSanity
                     ? (post.categories?.[0] || { name: "General" })
                     : (post.category || { name: "General" })
                   }
+                  author={useSanity
+                    ? post.author
+                    : post.author
+                  }
+                  imageUrl={useSanity && post.featuredImage?.asset
+                    ? urlFor(post.featuredImage.asset).width(360).height(240).url()
+                    : post.featuredImage?.url || post.imageUrl
+                  }
                 />
               ))}
-            </div>
+            </StaggerList>
           </div>
 
           {/* Sidebar */}
@@ -116,11 +134,12 @@ export default async function Home() {
         </div>
       </main>
 
-      <footer className="mt-20 border-t border-gray-200 py-4">
+      <footer className="mt-20 border-t border-gray-200 py-4 blur-element">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
         </div>
       </footer>
     </div>
+    </PageWrapper>
   )
 }

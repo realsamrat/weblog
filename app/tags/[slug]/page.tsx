@@ -96,7 +96,7 @@ export default async function TagPage({ params }: TagPageProps) {
                         return (
                           <span
                             key={category._id}
-                            className="text-xs px-2 py-1 rounded font-mono uppercase"
+                            className="text-xs px-2 py-0.5 rounded font-mono uppercase"
                             style={styles}
                           >
                             {category.name}
@@ -115,7 +115,7 @@ export default async function TagPage({ params }: TagPageProps) {
                           <Link
                             key={tag._id}
                             href={`/tags/${tag.slug.current}`}
-                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors"
+                            className="text-[13px] px-2 py-0.5 bg-[#FFF2E4] text-[#5E5143] rounded border border-[#E5B98A] hover:bg-[#FFE8D1] hover:border-[#D4A574] transition-colors"
                           >
                             {tag.name}
                           </Link>

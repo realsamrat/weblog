@@ -1,4 +1,4 @@
-import Navigation from "@/components/navigation"
+import PageWrapper from "@/components/page-wrapper"
 import { notFound } from "next/navigation"
 import { getPostBySlug as getSanityPost, getPublishedPosts, getTagsWithCounts, getAllCategories, urlFor } from "@/lib/sanity"
 import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
@@ -8,6 +8,9 @@ import { portableTextToHtml } from "@/lib/sanity"
 import { getCategoryStyles } from "@/lib/utils"
 import Link from "next/link"
 import { SocialShare } from "@/components/ui/social-share"
+import { HeroImage, HeroContent, HeroTitle } from "@/components/motion/hero-animation"
+import ScrollReveal from "@/components/motion/scroll-reveal"
+import TitleBlur from "@/components/motion/title-blur"
 // Remove lexicalToHTML import as it's not available in this version
 
 interface PageProps {
@@ -82,52 +85,55 @@ export default async function BlogPost({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen">
-      <Navigation />
+    <PageWrapper>
+      <div className="min-h-screen flex flex-col">
       
       {/* Full-width Hero Header */}
-      <div className="w-full mb-12 relative">
-        <div className="w-full">
-          {/* Split Layout Container */}
-          <div className="flex flex-col lg:flex-row items-start">
+      <div className="w-full bg-black mb-[70px] lg:mb-[120px] min-h-[456px] -mt-[60px] pt-[60px] blur-element">
+        {/* Split Layout Container */}
+        <div className="flex flex-col lg:flex-row">
             
             {/* Left Column - Featured Image (Full Bleed) - 43% */}
-            <div className="w-full lg:w-[43%] flex flex-col">
+            <div className="w-full lg:flex-[43%] lg:min-h-[375px] relative">
               {(post.featuredImage?.asset || post.featuredImage?.url || post.imageUrl) ? (
-                <>
+                <figure className="w-full h-full lg:flex lg:flex-col">
                   <div className="aspect-[4/3] lg:aspect-auto lg:flex-grow overflow-hidden bg-gray-100">
-                    <img 
-                      src={
+                    <HeroImage
+                      imageUrl={
                         post.featuredImage?.asset 
                           ? urlFor(post.featuredImage.asset).url()
                           : post.featuredImage?.url || post.imageUrl
-                      } 
+                      }
                       alt={post.featuredImage?.alt || post.title}
-                      className="w-full h-full object-cover"
-                      loading="eager"
                     />
                   </div>
-                  <div className="px-4 py-3 bg-gray-900 text-[11px] text-gray-400 uppercase tracking-wider">
-                    <span className="font-mono">Image Credits:</span> {post.featuredImage?.caption || 'STOCK PHOTO / GETTY IMAGES'}
-                  </div>
-                </>
+                  <figcaption className="hidden lg:flex items-center justify-end h-10 px-4 bg-white text-[11px] text-gray-600 uppercase tracking-wider font-mono gap-1">
+                    <strong>Image Credits:</strong> {post.featuredImage?.caption || 'STOCK PHOTO / GETTY IMAGES'}
+                  </figcaption>
+                </figure>
               ) : (
-                <div className="aspect-[4/3] lg:aspect-auto lg:flex-grow bg-gradient-to-br from-gray-100 to-gray-200"></div>
+                <div className="aspect-[4/3] lg:aspect-auto lg:h-full bg-gradient-to-br from-gray-100 to-gray-200"></div>
               )}
             </div>
 
             {/* Right Column - Content - 57% */}
-            <div className="w-full lg:w-[57%] relative bg-black">
-              {/* Extension div for bottom overlap */}
-              <div className="absolute bottom-0 left-0 w-full h-5 lg:h-10 bg-black"></div>
+            <div className="w-full lg:flex-[57%] relative bg-black">
+              {/* Outer extension div for bottom overlap - lighter accent color */}
+              <div className="absolute bottom-0 left-0 w-full h-5 lg:h-10 bg-gray-700 z-0" role="presentation"></div>
               
               {/* Content container with max-width and specific spacing */}
-              <div className="flex flex-col justify-around mx-4 lg:ml-10 lg:mr-6 xl:ml-[110px] max-w-[582px] min-h-0 lg:min-h-[620px] pt-8 lg:pt-[102px] pb-12 lg:pb-0 gap-6 lg:gap-0 relative">
-                {/* Inner extension div */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none" role="presentation"></div>
+              <HeroContent className="flex flex-col justify-around mx-6 lg:ml-8 lg:mr-6 xl:ml-[100px] max-w-none lg:max-w-[620px] min-h-[400px] lg:min-h-[620px] pt-6 lg:pt-16 pb-8 lg:pb-16 pr-6 lg:pr-6 gap-4 lg:gap-0 relative overflow-visible">
+                {/* Inner extension div - creates the raised effect */}
+                <div 
+                  className="absolute bg-black -bottom-2.5 -left-6 h-[15px] z-10
+                    w-[calc(100%+48px)]
+                    lg:-bottom-[39px] lg:-left-8 lg:h-20 lg:w-[calc(100%+32px)]
+                    xl:-bottom-10 xl:-left-[100px] xl:w-[calc(100%+106px)]" 
+                  role="presentation"
+                ></div>
                 
                 {/* Top Section - Category and Share */}
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between relative z-20 mb-4 sm:mb-8">
                   {/* Category */}
                   <div>
                     {(() => {
@@ -136,11 +142,11 @@ export default async function BlogPost({ params }: PageProps) {
                         : post.category
                       const categoryName = category?.name || 'General'
                       const categoryColor = category?.color
-                      const styles = getCategoryStyles(categoryColor)
+                      const styles = getCategoryStyles(categoryColor, true) // true for dark background
                       
                       return (
                         <span 
-                          className="inline-block text-xs px-3 py-1.5 rounded-md font-mono uppercase font-semibold tracking-wide transition-all duration-200 hover:shadow-sm"
+                          className="inline-block text-xs px-2 py-0.5 rounded-md font-mono uppercase font-bold tracking-wide transition-all duration-200 hover:shadow-sm"
                           style={styles}
                         >
                           {categoryName}
@@ -151,56 +157,61 @@ export default async function BlogPost({ params }: PageProps) {
                   
                   {/* Social Share */}
                   <SocialShare 
-                    url={typeof window !== 'undefined' ? window.location.href : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/posts/${useSanity ? post.slug?.current : post.slug}`}
+                    url={`${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/posts/${useSanity ? post.slug?.current : post.slug}`}
                     title={post.title}
                     className="flex-shrink-0"
                   />
                 </div>
 
                 {/* Middle Section - Title */}
-                <div>
-                  <h1 className="font-sf-pro-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-[-0.02em] text-white">
+                <TitleBlur className="relative z-20">
+                  <h1 className="font-sf-pro-display text-[32px] sm:text-[38px] lg:text-[48px] xl:text-[58px] font-bold leading-[1.1] tracking-[-0.02em] text-white">
                     {post.title}
                   </h1>
-                </div>
+                </TitleBlur>
 
                 {/* Bottom Section - Author and Date */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-white">
-                      {useSanity 
-                        ? post.author?.name || 'Anonymous'
-                        : post.author?.name || 'Anonymous'
-                      }
-                    </span>
-                  </div>
-                  <time className="font-mono text-gray-400">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm relative z-20">
+                  <span className="font-semibold text-white">
+                    {useSanity 
+                      ? post.author?.name || 'Anonymous'
+                      : post.author?.name || 'Anonymous'
+                    }
+                  </span>
+                  <time className="font-mono text-gray-400 text-xs sm:text-sm">
                     {(() => {
                       const date = new Date(useSanity ? post.publishedAt : post.publishedAt || new Date());
                       const timeStr = date.toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: '2-digit',
-                        hour12: true
+                        hour12: true,
+                        timeZone: 'Asia/Kolkata'
                       });
                       const dateStr = date.toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
-                        day: 'numeric'
+                        day: 'numeric',
+                        timeZone: 'Asia/Kolkata'
                       });
-                      // IST timezone
                       return `${timeStr} IST • ${dateStr}`;
                     })()}
                   </time>
                 </div>
-              </div>
+              </HeroContent>
+              
+              {/* Mobile credits */}
+              {(post.featuredImage?.asset || post.featuredImage?.url || post.imageUrl) && (
+                <div className="relative z-30 flex items-center px-6 py-3 bg-white text-[11px] text-gray-600 uppercase tracking-wider font-mono gap-1 lg:hidden">
+                  <strong>Image Credits:</strong> {post.featuredImage?.caption || 'STOCK PHOTO / GETTY IMAGES'}
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
 
       {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-4">
-        <div className="flex gap-12">
+      <main className="max-w-6xl mx-auto px-4 flex-grow blur-element">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           {/* Main content */}
           <article className="flex-1">
 
@@ -246,7 +257,8 @@ export default async function BlogPost({ params }: PageProps) {
           </article>
 
           {/* Sidebar */}
-          <aside className="w-80 flex-shrink-0">
+          <ScrollReveal delay={0.3} className="w-full lg:w-80 lg:flex-shrink-0">
+            <aside>
             <div className="sticky top-20">
               {/* Post metadata */}
               <div className="mb-8">
@@ -259,7 +271,8 @@ export default async function BlogPost({ params }: PageProps) {
                     {new Date(useSanity ? post.publishedAt : post.publishedAt || new Date()).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
+                      day: 'numeric',
+                      timeZone: 'Asia/Kolkata'
                     })}
                   </strong>.
                 </p>
@@ -275,9 +288,9 @@ export default async function BlogPost({ params }: PageProps) {
                         <Link
                           key={tag._id}
                           href={`/tags/${tag.slug.current}`}
-                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors"
+                          className="text-[13px] px-2 py-1 bg-[#FFF2E4] text-[#5E5143] rounded border border-[#E5B98A] hover:bg-[#FFE8D1] hover:border-[#D4A574] transition-colors"
                         >
-                          {tag.name} <span className="text-gray-500 ml-1">{tag.postCount}</span>
+                          {tag.name} <span className="text-[#5E5143]/70 ml-1">{tag.postCount}</span>
                         </Link>
                       ))
                     ) : (
@@ -285,7 +298,7 @@ export default async function BlogPost({ params }: PageProps) {
                         <Link
                           key={postTag.tag.id}
                           href={`/tags/${postTag.tag.slug}`}
-                          className="text-xs px-2.5 py-1.5 bg-gray-100 text-gray-700 rounded border border-gray-400 hover:bg-gray-200 hover:border-gray-500 transition-colors"
+                          className="text-[13px] px-2 py-1 bg-[#FFF2E4] text-[#5E5143] rounded border border-[#E5B98A] hover:bg-[#FFE8D1] hover:border-[#D4A574] transition-colors"
                         >
                           {postTag.tag.name}
                         </Link>
@@ -312,15 +325,17 @@ export default async function BlogPost({ params }: PageProps) {
                 )}
               </div>
             </div>
-          </aside>
+            </aside>
+          </ScrollReveal>
         </div>
       </main>
 
-      <footer className="mt-20 border-t border-gray-200 py-8">
+      <footer className="mt-20 border-t border-gray-200 py-8 blur-element">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
         </div>
       </footer>
     </div>
+    </PageWrapper>
   )
 }

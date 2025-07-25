@@ -68,6 +68,15 @@
   font-display: swap;
 }
 
+/* BB Manual Mono Pro Font Face Declaration */
+@font-face {
+  font-family: 'BB Manual Mono Pro';
+  src: url('/fonts/otf/BB-Manual-Mono-Pro-Original-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -166,11 +175,30 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     -webkit-text-size-adjust: none;
+    overflow-x: hidden;
+  }
+
+  /* Element blur effect for Subscribe button hover */
+  .blur-element {
+    transition: filter 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .blur-active .blur-element {
+    filter: blur(8px);
+  }
+
+  /* Blur navigation items when Subscribe is hovered */
+  .nav-item {
+    transition: filter 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .blur-nav .nav-item {
+    filter: blur(8px);
   }
   
   /* Ensure proper font fallbacks */
   .font-mono {
-    font-family: var(--font-mono), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    font-family: 'BB Manual Mono Pro', ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   }
   
   .font-serif {

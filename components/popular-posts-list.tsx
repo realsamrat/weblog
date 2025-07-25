@@ -13,7 +13,7 @@ interface PopularPostsListProps {
 
 export default function PopularPostsList({ posts }: PopularPostsListProps) {
   return (
-    <div>
+    <div className="blur-element">
       <h3 className="font-sf-pro-display text-lg font-semibold mb-3">Popular Posts</h3>
       <ul className="space-y-3">
         {posts.map((post) => (

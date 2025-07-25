@@ -134,13 +134,14 @@ function darkenColor(hex: string, amount: number = 0.15): string {
   return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`
 }
 
-export function getCategoryStyles(color?: string) {
+export function getCategoryStyles(color?: string, darkBackground: boolean = false) {
   if (!color) {
     const defaultColor = '#f1f5f9' // slate-100
     const darkerBorderColor = darkenColor(defaultColor, 0.08)
+    const opacity = darkBackground ? 0.85 : 0.6
     return {
-      backgroundColor: 'rgba(241, 245, 249, 0.6)', // slate-100 with 60% opacity
-      borderColor: darkerBorderColor,
+      backgroundColor: `rgba(241, 245, 249, ${opacity})`, // slate-100 with dynamic opacity
+      borderColor: darkBackground ? 'rgba(241, 245, 249, 0.3)' : darkerBorderColor,
       borderWidth: '1px',
       borderStyle: 'solid',
       color: '#334155' // slate-700
@@ -151,11 +152,12 @@ export function getCategoryStyles(color?: string) {
   const darkerBorderColor = darkenColor(color, 0.08)
   
   const { r, g, b } = hexToRgb(color)
-  const backgroundColorWithOpacity = `rgba(${r}, ${g}, ${b}, 0.6)`
+  const opacity = darkBackground ? 0.85 : 0.6
+  const backgroundColorWithOpacity = `rgba(${r}, ${g}, ${b}, ${opacity})`
 
   return {
     backgroundColor: backgroundColorWithOpacity,
-    borderColor: darkerBorderColor,
+    borderColor: darkBackground ? `rgba(${r}, ${g}, ${b}, 0.3)` : darkerBorderColor,
     borderWidth: '1px',
     borderStyle: 'solid',
     color: textColor
