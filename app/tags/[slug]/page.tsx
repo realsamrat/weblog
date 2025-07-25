@@ -1,4 +1,4 @@
-import Navigation from "@/components/navigation"
+import PageWrapper from "@/components/page-wrapper"
 import { notFound } from "next/navigation"
 import { getPostsByTag, getAllSanityTags } from "@/lib/sanity"
 import { formatDistanceToNow } from "date-fns"
@@ -24,9 +24,7 @@ export default async function TagPage({ params }: TagPageProps) {
   const tagName = posts[0]?.tags?.find((tag: any) => tag.slug.current === slug)?.name || slug
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      
+    <PageWrapper>
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Tag Header */}
         <div className="mb-12">
@@ -138,7 +136,7 @@ export default async function TagPage({ params }: TagPageProps) {
           </Link>
         </div>
       </main>
-    </div>
+    </PageWrapper>
   )
 }
 

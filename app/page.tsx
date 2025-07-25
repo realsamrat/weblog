@@ -66,7 +66,6 @@ export default async function Home() {
 
   return (
     <PageWrapper noPadding>
-      <div className="min-h-screen flex flex-col">
       
       {/* Full-width Featured Post Section */}
       {featuredPost ? (
@@ -134,13 +133,6 @@ export default async function Home() {
           </aside>
         </div>
       </main>
-
-      <footer className="mt-20 border-t border-gray-200 py-4 blur-element">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
     </PageWrapper>
   )
 }

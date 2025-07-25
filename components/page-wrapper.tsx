@@ -10,11 +10,16 @@ interface PageWrapperProps {
 
 export default function PageWrapper({ children, noPadding = false }: PageWrapperProps) {
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Navigation />
-      <div id="main-content" className={noPadding ? "" : "pt-[60px]"}>
+      <div id="main-content" className={`flex-grow flex flex-col ${noPadding ? "" : "pt-[60px]"}`}>
         {children}
       </div>
-    </>
+      <footer className="mt-20 border-t border-gray-200 py-4 blur-element">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
   )
 }

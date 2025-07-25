@@ -216,6 +216,16 @@
   .font-sf-pro-display {
     font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
+  
+  /* Logo hover glow effect */
+  .logo-hover-glow {
+    filter: brightness(1) drop-shadow(0 0 0px #d61f1f);
+    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .group:hover .logo-hover-glow {
+    filter: brightness(1.3) drop-shadow(0 0 8px #d61f1f) drop-shadow(0 0 4px #ff4444);
+  }
 }
 
 /* Rich Text Editor Styles - Match Post Page Styling */

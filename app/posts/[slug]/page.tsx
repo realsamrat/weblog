@@ -86,7 +86,6 @@ export default async function BlogPost({ params }: PageProps) {
 
   return (
     <PageWrapper noPadding>
-      <div className="min-h-screen flex flex-col">
       
       {/* Full-width Hero Header */}
       <div className="w-full bg-black mb-[70px] lg:mb-[120px] min-h-[456px] -mt-[60px] pt-[60px] blur-element">
@@ -329,13 +328,6 @@ export default async function BlogPost({ params }: PageProps) {
           </ScrollReveal>
         </div>
       </main>
-
-      <footer className="mt-20 border-t border-gray-200 py-8 blur-element">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-xs text-gray-500">© 2024 Weblog. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
     </PageWrapper>
   )
 }
