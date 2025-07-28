@@ -22,7 +22,7 @@ export async function GET() {
 
     return NextResponse.json({
       popularPosts,
-      popularTags: popularTags.slice(0, 7)
+      popularTags: popularTags ? popularTags.slice(0, 7) : []
     })
   } catch (error) {
     console.error('Error fetching sidebar data:', error)
