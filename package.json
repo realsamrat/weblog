@@ -16,6 +16,7 @@
     "check-env": "tsx scripts/check-env.ts"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-accordion": "^1.2.2",
@@ -69,6 +70,7 @@
     "dompurify": "^3.2.6",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.9",
+    "gsap": "^3.13.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.468.0",
     "marked": "^15.0.12",

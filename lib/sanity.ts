@@ -12,6 +12,48 @@ interface PortableTextBlock {
   filename?: string
 }
 
+// Utility to check if we're in a prerendering context
+const isPrerendering = () => {
+  return typeof window === 'undefined' && process.env.NODE_ENV === 'production'
+}
+
+// Safe fetch wrapper for prerendering
+const safeFetch = async (query: string, params?: any) => {
+  try {
+    // During prerendering, we need to be careful about fetch timing
+    if (isPrerendering()) {
+      // Use a shorter timeout during prerendering
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+      
+      try {
+        const result = await client.fetch(query, params, {
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+        return result
+      } catch (error: any) {
+        clearTimeout(timeoutId)
+        if (error.name === 'AbortError') {
+          console.warn('Sanity fetch timed out during prerendering')
+          return null
+        }
+        throw error
+      }
+    }
+    
+    // Normal fetch for client-side or development
+    return await client.fetch(query, params)
+  } catch (error: any) {
+    // Handle prerender-specific errors
+    if (error.digest === 'HANGING_PROMISE_REJECTION' || error.message?.includes('prerender')) {
+      console.warn('Sanity fetch skipped during prerender completion')
+      return null
+    }
+    throw error
+  }
+}
+
 export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
@@ -174,7 +216,7 @@ export async function getPublishedPosts(limit?: number) {
 
 export async function getPostBySlug(slug: string) {
   try {
-    const post = await client.fetch(
+    const post = await safeFetch(
       `*[_type == "post" && slug.current == $slug && status == "PUBLISHED"][0] {
         _id,
         title,
@@ -399,7 +441,7 @@ export async function getTagsWithCounts(tagIds: string[]) {
   try {
     if (!tagIds || tagIds.length === 0) return []
     
-    const tags = await client.fetch(
+    const tags = await safeFetch(
       `*[_type == "tag" && _id in $tagIds] {
         _id,
         name,
@@ -408,7 +450,7 @@ export async function getTagsWithCounts(tagIds: string[]) {
       }`,
       { tagIds }
     )
-    return tags
+    return tags || []
   } catch (error) {
     console.error('Error fetching tags with counts:', error)
     return []

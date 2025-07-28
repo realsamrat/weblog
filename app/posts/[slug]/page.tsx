@@ -9,6 +9,7 @@ import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdow
 import { portableTextToHtml } from "@/lib/sanity"
 import Link from "next/link"
 import CategoryBadge from "@/components/category-badge"
+import HeroTitleSection from "@/components/hero-title-section"
 import { getCachedCategories, getCachedTagsWithCounts } from "@/lib/cached-data"
 
 // Lazy load SocialShare component
@@ -151,11 +152,7 @@ async function BlogPostContent({ params }: PageProps) {
                 </div>
 
                 {/* Middle Section - Title */}
-                <div className="relative z-20">
-                  <h1 className="font-sf-pro-display text-[32px] sm:text-[38px] lg:text-[48px] xl:text-[58px] font-bold leading-[1.1] tracking-[-0.02em] text-white">
-                    {post.title}
-                  </h1>
-                </div>
+                <HeroTitleSection title={post.title} />
 
                 {/* Bottom Section - Author and Date */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm relative z-20">

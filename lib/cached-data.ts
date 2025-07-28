@@ -57,8 +57,18 @@ export const getCachedPrismaTags = unstable_cache(
 // Cache tags with counts for 30 minutes
 export const getCachedTagsWithCounts = unstable_cache(
   async (tagIds: string[]) => {
-    const tagsWithCounts = await getTagsWithCounts(tagIds)
-    return tagsWithCounts
+    try {
+      const tagsWithCounts = await getTagsWithCounts(tagIds)
+      return tagsWithCounts || []
+    } catch (error: any) {
+      // Handle prerender-specific errors gracefully
+      if (error?.digest === 'HANGING_PROMISE_REJECTION' || error?.message?.includes('prerender')) {
+        console.warn('Tags fetch skipped during prerender')
+        return []
+      }
+      console.error('Error in getCachedTagsWithCounts:', error)
+      return []
+    }
   },
   ['tags-with-counts'],
   {
