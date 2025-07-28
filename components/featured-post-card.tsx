@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import CategoryBadge from "./category-badge"
+import AnimatedPostTitle from "./animated-post-title"
 
 interface FeaturedPostCardProps {
   title: string
@@ -48,11 +49,13 @@ export default function FeaturedPostCard({ title, excerpt, date, slug, category,
               <CategoryBadge category={category} darkBackground={true} />
               <time className="text-base text-gray-400 font-mono">{date}</time>
             </div>
-            <h2 className="font-sf-pro-display text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-              <Link href={`/posts/${slug}`} className="hover:text-gray-300 transition-colors">
-                {title}
-              </Link>
-            </h2>
+            <Link href={`/posts/${slug}`} className="hover:text-gray-300 transition-colors block mb-4">
+              <AnimatedPostTitle 
+                title={title} 
+                className="font-sf-pro-display text-4xl lg:text-5xl font-bold leading-tight"
+                as="h2"
+              />
+            </Link>
             <p className="text-lg text-gray-300 leading-relaxed mb-6">{excerpt}</p>
             <Link
               href={`/posts/${slug}`}
