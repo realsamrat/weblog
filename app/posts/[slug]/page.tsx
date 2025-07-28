@@ -1,14 +1,20 @@
+import { Suspense } from "react"
+import dynamic from 'next/dynamic'
 import PageWrapper from "@/components/page-wrapper"
 import { notFound } from "next/navigation"
-import { getPostBySlug as getSanityPost, getPublishedPosts, getTagsWithCounts, getAllCategories, urlFor } from "@/lib/sanity"
-import { getPostBySlug as getPrismaPost, getAllPosts } from "@/lib/posts"
+import { getPostBySlug as getSanityPost, urlFor } from "@/lib/sanity"
+import { getPostBySlug as getPrismaPost } from "@/lib/posts"
 import { Status } from "@prisma/client"
 import { sanitizeHtml, legacyMarkdownToHtml, isHtmlContent } from "@/lib/markdown"
 import { portableTextToHtml } from "@/lib/sanity"
 import Link from "next/link"
-import { SocialShare } from "@/components/ui/social-share"
 import CategoryBadge from "@/components/category-badge"
-// Remove lexicalToHTML import as it's not available in this version
+import { getCachedCategories, getCachedTagsWithCounts } from "@/lib/cached-data"
+
+// Lazy load SocialShare component
+const SocialShare = dynamic(() => import('@/components/ui/social-share').then(mod => ({ default: mod.SocialShare })), {
+  loading: () => <div className="h-10 w-32 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+})
 
 interface PageProps {
   params: Promise<{
@@ -16,29 +22,29 @@ interface PageProps {
   }>
 }
 
-export default async function BlogPost({ params }: PageProps) {
+async function BlogPostContent({ params }: PageProps) {
   const { slug } = await params
   
-  // Try Sanity first, fallback to Prisma
-  let post = await getSanityPost(slug)
-  let useSanity = true
-  let allPosts: any[] = []
-  let tagsWithCounts: any[] = []
+  // Parallel fetch initial data - removed publishedPosts to reduce payload
+  const [sanityPost, sanityCategories] = await Promise.all([
+    getSanityPost(slug),
+    getCachedCategories()
+  ])
   
-  const sanityCategories = await getAllCategories()
+  let post = sanityPost
+  let useSanity = true
+  let tagsWithCounts: any[] = []
 
   if (!post) {
     // Fallback to Prisma
     useSanity = false
     const prismaPost = await getPrismaPost(slug)
+    
     if (!prismaPost || prismaPost.status === Status.DRAFT) {
       notFound()
     }
+    
     post = prismaPost
-    allPosts = await getAllPosts({ 
-      status: Status.PUBLISHED,
-      includeRelations: false
-    })
     
     if (post.category) {
       const sanityCategory = sanityCategories.find((cat: any) => 
@@ -52,20 +58,16 @@ export default async function BlogPost({ params }: PageProps) {
       }
     }
   } else {
-    allPosts = await getPublishedPosts(100)
+    // Fetch tags in parallel if post has tags
     if (post.tags && post.tags.length > 0) {
       const tagIds = post.tags.map((tag: any) => tag._id)
-      tagsWithCounts = await getTagsWithCounts(tagIds)
+      tagsWithCounts = await getCachedTagsWithCounts(tagIds)
     }
   }
 
   console.log('Post data:', JSON.stringify(post, null, 2))
   console.log('useSanity:', useSanity)
   console.log('post.tags:', post.tags)
-
-  // Find previous post
-  const currentPostIndex = allPosts.findIndex((p: any) => (p.slug?.current || p.slug) === slug)
-  const previousPost = currentPostIndex > 0 ? allPosts[currentPostIndex - 1] : null
 
   // Process content based on source
   let contentHTML = ''
@@ -292,26 +294,40 @@ export default async function BlogPost({ params }: PageProps) {
                 </div>
               )}
 
-              {/* Previous post */}
-              <div>
-                {previousPost ? (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <strong>Previous:</strong>{" "}
-                    <Link href={`/posts/${previousPost.slug?.current || previousPost.slug}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">
-                      {previousPost.title}
-                    </Link>
-                  </p>
-                ) : (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <strong>Previous:</strong>{" "}
-                    <span className="text-gray-400 dark:text-gray-600">This is the latest post</span>
-                  </p>
-                )}
-              </div>
             </div>
           </aside>
         </div>
       </main>
     </PageWrapper>
+  )
+}
+
+export default function BlogPost({ params }: PageProps) {
+  return (
+    <Suspense fallback={
+      <PageWrapper>
+        <main className="flex-grow py-8">
+          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row gap-12">
+            <article className="flex-1 animate-pulse">
+              <div className="mb-8">
+                <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/4 mb-4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
+              </div>
+              <div className="space-y-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
+              </div>
+            </article>
+            <aside className="w-80 flex-shrink-0">
+              <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            </aside>
+          </div>
+        </main>
+      </PageWrapper>
+    }>
+      <BlogPostContent params={params} />
+    </Suspense>
   )
 }

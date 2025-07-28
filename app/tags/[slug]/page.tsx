@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import PageWrapper from "@/components/page-wrapper"
 import { notFound } from "next/navigation"
 import { getPostsByTag, getAllSanityTags } from "@/lib/sanity"
@@ -7,12 +8,12 @@ import Link from "next/link"
 import Image from "next/image"
 
 interface TagPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
-export default async function TagPage({ params }: TagPageProps) {
+async function TagPageContent({ params }: TagPageProps) {
   const { slug } = await params
   
   const posts = await getPostsByTag(slug)
@@ -137,6 +138,31 @@ export default async function TagPage({ params }: TagPageProps) {
         </div>
       </main>
     </PageWrapper>
+  )
+}
+
+export default function TagPage({ params }: TagPageProps) {
+  return (
+    <Suspense fallback={
+      <PageWrapper>
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <div className="mb-12 animate-pulse">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-2xl">🏷️</span>
+              <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-48"></div>
+            </div>
+            <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-64"></div>
+          </div>
+          <div className="space-y-8">
+            <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded"></div>
+          </div>
+        </main>
+      </PageWrapper>
+    }>
+      <TagPageContent params={params} />
+    </Suspense>
   )
 }
 

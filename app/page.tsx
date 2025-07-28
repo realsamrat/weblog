@@ -1,27 +1,45 @@
+import { Suspense } from "react"
+import dynamic from 'next/dynamic'
 import PageWrapper from "@/components/page-wrapper"
-import BlogPostCard from "@/components/blog-post-card"
 import TechCrunchPostCard from "@/components/techcrunch-post-card"
-import FeaturedPostCard from "@/components/featured-post-card"
-import PopularTags from "@/components/popular-tags"
-import PopularPostsList from "@/components/popular-posts-list"
-import { getPublishedPosts, getFeaturedPosts, getAllSanityTags, getAllCategories, urlFor } from "@/lib/sanity"
-import { getAllPosts, getFeaturedPost, getPopularPosts } from "@/lib/posts"
+import SidebarWrapper from "@/components/sidebar-wrapper"
+import { getPublishedPosts, getFeaturedPosts, urlFor } from "@/lib/sanity"
+import { getAllPosts, getFeaturedPost } from "@/lib/posts"
 import { Status } from "@prisma/client"
+import { getCachedCategories } from "@/lib/cached-data"
 
-export default async function Home() {
-  // Try Sanity first, fallback to Prisma
-  let allPublishedPosts = await getPublishedPosts(20)
+// Lazy load FeaturedPostCard
+const FeaturedPostCard = dynamic(() => import('@/components/featured-post-card'), {
+  loading: () => (
+    <div className="w-full h-[500px] bg-gray-100 dark:bg-gray-900 animate-pulse blur-element -mt-[60px] pt-[60px]"></div>
+  )
+})
+
+async function HomeContent() {
+  // Parallel fetch only essential data for initial render
+  const [
+    sanityPosts,
+    sanityCategories,
+    featuredPosts
+  ] = await Promise.all([
+    getPublishedPosts(10), // Reduced from 20 to 10
+    getCachedCategories(),
+    getFeaturedPosts()
+  ])
+  
+  let allPublishedPosts = sanityPosts
   let featuredPost: any = null
   let useSanity = true
   
-  const sanityCategories = await getAllCategories()
-  
   if (allPublishedPosts.length === 0) {
-    // Fallback to Prisma
+    // Fallback to Prisma with parallel fetching
     useSanity = false
-    const prismaData = await getAllPosts({ status: Status.PUBLISHED })
+    const [prismaData, featuredData] = await Promise.all([
+      getAllPosts({ status: Status.PUBLISHED }),
+      getFeaturedPost()
+    ])
+    
     allPublishedPosts = prismaData
-    const featuredData = await getFeaturedPost()
     featuredPost = featuredData
     
     if (featuredPost && featuredPost.category) {
@@ -51,17 +69,12 @@ export default async function Home() {
       return post
     })
   } else {
-    const featuredPosts = await getFeaturedPosts()
     featuredPost = featuredPosts[0]
   }
   
   const otherPosts = featuredPost
     ? allPublishedPosts.filter((post: any) => post.slug !== featuredPost.slug)
     : allPublishedPosts
-
-  // For now, using existing data for popular posts and tags
-  const popularPostsData = await getPopularPosts(7)
-  const popularTagsData = await getAllSanityTags()
 
   return (
     <PageWrapper noPadding>
@@ -123,15 +136,44 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - Client Side */}
           <aside className="w-80 flex-shrink-0">
             <div className="sticky top-20">
-              <PopularTags tags={popularTagsData.slice(0, 7)} />
-              <PopularPostsList posts={popularPostsData} />
+              <SidebarWrapper />
             </div>
           </aside>
         </div>
       </main>
     </PageWrapper>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <PageWrapper noPadding>
+        <div className="w-full bg-black h-[140px] blur-element -mt-[60px] pt-[60px]"></div>
+        <main className="max-w-6xl mx-auto px-4 pt-6 flex-grow blur-element">
+          <div className="flex flex-col md:flex-row gap-12">
+            <div className="flex-1">
+              <h2 className="font-sf-pro-display text-4xl font-bold mb-6">Recent Posts</h2>
+              <div className="animate-pulse">
+                <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded mb-4"></div>
+                <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded mb-4"></div>
+                <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded"></div>
+              </div>
+            </div>
+            <aside className="w-80 flex-shrink-0">
+              <div className="animate-pulse">
+                <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded mb-4"></div>
+                <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded"></div>
+              </div>
+            </aside>
+          </div>
+        </main>
+      </PageWrapper>
+    }>
+      <HomeContent />
+    </Suspense>
   )
 }

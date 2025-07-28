@@ -1,30 +1,6 @@
 import { prisma } from './db'
 import { Prisma, Status } from '@prisma/client'
-
-// Simple in-memory cache for development
-const cache = new Map<string, { data: any; timestamp: number }>()
-const CACHE_TTL = 30000 // 30 seconds for posts
-const STATIC_CACHE_TTL = 300000 // 5 minutes for categories/authors (they change less frequently)
-
-function getCached<T>(key: string): T | null {
-  const cached = cache.get(key)
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data
-  }
-  return null
-}
-
-function getCachedStatic<T>(key: string): T | null {
-  const cached = cache.get(key)
-  if (cached && Date.now() - cached.timestamp < STATIC_CACHE_TTL) {
-    return cached.data
-  }
-  return null
-}
-
-function setCache(key: string, data: any): void {
-  cache.set(key, { data, timestamp: Date.now() })
-}
+import { unstable_noStore as noStore } from 'next/cache'
 
 // Type definitions that match Prisma models
 export type Post = {
@@ -96,11 +72,7 @@ export interface PopularPostInfo {
 
 // Post functions
 export async function getPostBySlug(slug: string) {
-  const cacheKey = `post-${slug}`
-  const cached = getCached(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const post = await prisma.post.findUnique({
     where: { slug },
@@ -115,9 +87,6 @@ export async function getPostBySlug(slug: string) {
     }
   })
 
-  if (post) {
-    setCache(cacheKey, post)
-  }
   return post
 }
 
@@ -127,11 +96,7 @@ export async function getAllPosts(options?: {
   offset?: number
   includeRelations?: boolean
 }) {
-  const cacheKey = `posts-${JSON.stringify(options)}`
-  const cached = getCached(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const where: Prisma.PostWhereInput = {}
   
@@ -159,16 +124,11 @@ export async function getAllPosts(options?: {
     take: options?.limit
   })
 
-  setCache(cacheKey, posts)
   return posts
 }
 
 export async function getFeaturedPost() {
-  const cacheKey = 'featured-post'
-  const cached = getCached(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const post = await prisma.post.findFirst({
     where: {
@@ -189,16 +149,11 @@ export async function getFeaturedPost() {
     }
   })
 
-  setCache(cacheKey, post)
   return post
 }
 
 export async function getPopularPosts(limit = 7): Promise<PopularPostInfo[]> {
-  const cacheKey = `popular-posts-${limit}`
-  const cached = getCached<PopularPostInfo[]>(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const posts = await prisma.post.findMany({
     where: {
@@ -221,7 +176,6 @@ export async function getPopularPosts(limit = 7): Promise<PopularPostInfo[]> {
     date: post.publishedAt?.toISOString().split('T')[0] || ''
   }))
 
-  setCache(cacheKey, result)
   return result
 }
 
@@ -352,13 +306,7 @@ export async function deletePost(id: number) {
 
 // Category functions
 export async function getAllCategories(bypassCache = false): Promise<Category[]> {
-  if (!bypassCache) {
-    const cacheKey = 'all-categories'
-    const cached = getCachedStatic<Category[]>(cacheKey)
-    if (cached) {
-      return cached
-    }
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const categories = await prisma.category.findMany({
     orderBy: {
@@ -366,9 +314,6 @@ export async function getAllCategories(bypassCache = false): Promise<Category[]>
     }
   })
 
-  if (!bypassCache) {
-    setCache('all-categories', categories)
-  }
   return categories
 }
 
@@ -415,11 +360,7 @@ export async function deleteCategory(id: number) {
 
 // Author functions
 export async function getAllAuthors(): Promise<Author[]> {
-  const cacheKey = 'all-authors'
-  const cached = getCachedStatic<Author[]>(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const authors = await prisma.author.findMany({
     orderBy: {
@@ -427,7 +368,6 @@ export async function getAllAuthors(): Promise<Author[]> {
     }
   })
 
-  setCache(cacheKey, authors)
   return authors
 }
 
@@ -524,11 +464,7 @@ export function generateSlug(title: string): string {
 
 // Optimized functions for edit/new post forms - only fetch necessary fields
 export async function getPostForEdit(slug: string) {
-  const cacheKey = `post-edit-${slug}`
-  const cached = getCached(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const post = await prisma.post.findUnique({
     where: { slug },
@@ -561,18 +497,11 @@ export async function getPostForEdit(slug: string) {
     }
   })
 
-  if (post) {
-    setCache(cacheKey, post)
-  }
   return post
 }
 
 export async function getCategoriesForForm(): Promise<Pick<Category, 'id' | 'name'>[]> {
-  const cacheKey = 'categories-form'
-  const cached = getCachedStatic<Pick<Category, 'id' | 'name'>[]>(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const categories = await prisma.category.findMany({
     select: {
@@ -584,16 +513,11 @@ export async function getCategoriesForForm(): Promise<Pick<Category, 'id' | 'nam
     }
   })
 
-  setCache(cacheKey, categories)
   return categories
 }
 
 export async function getAuthorsForForm(): Promise<Pick<Author, 'id' | 'name'>[]> {
-  const cacheKey = 'authors-form'
-  const cached = getCachedStatic<Pick<Author, 'id' | 'name'>[]>(cacheKey)
-  if (cached) {
-    return cached
-  }
+  noStore() // Opt out of caching for dynamic data
 
   const authors = await prisma.author.findMany({
     select: {
@@ -605,6 +529,5 @@ export async function getAuthorsForForm(): Promise<Pick<Author, 'id' | 'name'>[]
     }
   })
 
-  setCache(cacheKey, authors)
   return authors
 }

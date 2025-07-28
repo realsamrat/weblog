@@ -16,13 +16,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { DashboardProvider } from "@/components/dashboard/dashboard-provider"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 
-// Add route segment config for better performance
-export const dynamic = 'force-static';
-export const revalidate = 3600; // Revalidate layout every hour
-
-// Set fetchCache directive for optimized fetching
-export const fetchCache = 'force-cache';
-
 // Define proper metadata for the dashboard
 export const metadata = {
   title: 'Dashboard - Weblog',

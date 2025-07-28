@@ -15,8 +15,12 @@ interface PortableTextBlock {
 export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  useCdn: process.env.NODE_ENV === 'production',
+  useCdn: true, // Always use CDN for better performance
   apiVersion: '2024-01-01',
+  perspective: 'published', // Only fetch published content
+  stega: {
+    enabled: false, // Disable Stega for better caching
+  },
 })
 
 const builder = imageUrlBuilder(client)
