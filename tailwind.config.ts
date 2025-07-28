@@ -61,10 +61,12 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        fontFamily: {
-          mono: "var(--font-mono)",
-          serif: "var(--font-serif)",
-        },
+      },
+      fontFamily: {
+        mono: ["'BB Manual Mono Pro'", "ui-monospace", "SFMono-Regular", "SF Mono", "Consolas", "Liberation Mono", "Menlo", "monospace"],
+        serif: "var(--font-serif)",
+        'sf-pro-display': ['SF Pro Display', 'system-ui', 'sans-serif'],
+        'helvetica': ['Helvetica', 'Arial', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

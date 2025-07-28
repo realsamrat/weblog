@@ -1,40 +1,37 @@
 import Link from "next/link"
+import CategoryBadge from "./category-badge"
 
 interface BlogPostCardProps {
   title: string
   excerpt: string
   date: string
   slug: string
-  category: string
-}
-
-const categoryColorMap: { [key: string]: { bg: string; text: string } } = {
-  AI: { bg: "bg-sky-100", text: "text-sky-800" },
-  Security: { bg: "bg-rose-100", text: "text-rose-800" },
-  Programming: { bg: "bg-emerald-100", text: "text-emerald-800" },
-  Default: { bg: "bg-slate-100", text: "text-slate-800" },
+  category: {
+    name: string
+    color?: string
+  } | string
 }
 
 export default function BlogPostCard({ title, excerpt, date, slug, category }: BlogPostCardProps) {
-  const colors = categoryColorMap[category] || categoryColorMap.Default
 
   return (
-    <article className="border-b border-gray-100 pb-8 mb-8 last:border-b-0">
+    <article className="border-b border-gray-100 dark:border-gray-800 pb-8 mb-8 last:border-b-0">
       <div className="flex items-center gap-2 mb-2">
-        <span className={`text-xs px-2 py-1 rounded ${colors.bg} ${colors.text}`}>{category}</span>
-        <time className="text-xs text-gray-500">{date}</time>
+        <CategoryBadge category={category} />
+        <time className="text-xs text-gray-500 dark:text-gray-400 font-mono">{date}</time>
       </div>
-      <h2 className="font-serif text-xl font-semibold mb-3 leading-tight">
-        <Link href={`/posts/${slug}`} className="hover:text-gray-600 transition-colors">
+      <h2 className="font-sf-pro-display text-xl font-semibold mb-3 leading-tight">
+        <Link href={`/posts/${slug}`} className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
           {title}
         </Link>
       </h2>
-      <p className="text-sm text-black leading-relaxed mb-3">{excerpt}</p>
+      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">{excerpt}</p>
       <Link
         href={`/posts/${slug}`}
-        className="text-xs text-gray-900 hover:text-gray-600 transition-colors border-b border-gray-300 hover:border-gray-600"
+        className="relative text-xs text-gray-900 dark:text-gray-100 hover:text-[#d61f1f] dark:hover:text-[#d61f1f] transition-colors group inline-block"
       >
         Read more →
+        <span className="absolute left-0 bottom-0 w-full h-[1px] bg-[#d61f1f] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
       </Link>
     </article>
   )
