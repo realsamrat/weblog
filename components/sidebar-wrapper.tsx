@@ -87,8 +87,12 @@ export default function SidebarWrapper() {
 
   return (
     <>
-      <PopularTags tags={data.popularTags} />
-      <PopularPostsList posts={data.popularPosts} />
+      {data.popularTags && data.popularTags.length > 0 && (
+        <PopularTags tags={data.popularTags} />
+      )}
+      {data.popularPosts && data.popularPosts.length > 0 && (
+        <PopularPostsList posts={data.popularPosts} />
+      )}
     </>
   )
 }

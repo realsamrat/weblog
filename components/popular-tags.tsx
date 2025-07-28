@@ -6,6 +6,10 @@ interface PopularTagsProps {
 }
 
 export default function PopularTags({ tags }: PopularTagsProps) {
+  if (!tags || tags.length === 0) {
+    return null
+  }
+
   return (
     <div className="mb-10 blur-element">
       <h3 className="font-sf-pro-display text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Popular Tags</h3>
